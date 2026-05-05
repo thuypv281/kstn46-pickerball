@@ -1,4 +1,6 @@
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
+import { fetchTournamentState, type TournamentApiState } from './api/tournament'
+import { ScheduleCourtLine } from './courtLine'
 import {
   rosterSections,
   buildRosterRowsForTeam,
@@ -97,41 +99,6 @@ function MatchCountdown() {
         ))}
       </div>
     </div>
-  )
-}
-
-/** Tên trong ô nền theo team — chỉ dùng ở lịch thi đấu; bảng đội hình chỉ tô màu chữ. */
-function TeamNamePill({ team, children }: { team: 'hoai' | 'huyen'; children: ReactNode }) {
-  const shell =
-    team === 'hoai'
-      ? 'rounded-md bg-red-100/95 px-2 py-1 shadow-sm ring-1 ring-red-900/15 dark:bg-red-950/50 dark:ring-red-500/25'
-      : 'rounded-md bg-lime-200/90 px-2 py-1 shadow-sm ring-1 ring-lime-700/20 dark:bg-lime-950/55 dark:ring-lime-400/30'
-  return (
-    <span className={`inline-block max-w-full whitespace-normal ${shell} ${teamMemberNameClass[team]}`}>
-      {children}
-    </span>
-  )
-}
-
-/** Một ô lịch: nhãn team nhạt + tên trong ô màu + vs. */
-function ScheduleCourtLine({ court }: { court: ScheduleCourt }) {
-  return (
-    <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.9375rem] leading-snug text-stone-800 dark:text-stone-200">
-      <span className="font-medium text-red-700 dark:text-red-400">Team Hoài:</span>
-      <TeamNamePill team="hoai">
-        {court.hoai[0]} · {court.hoai[1]}
-      </TeamNamePill>
-      <span className="inline-flex shrink-0 rounded-md bg-slate-800 px-2 py-0.5 text-[0.7rem] font-semibold tracking-wide text-white shadow-sm dark:bg-blue-950 dark:ring-1 dark:ring-slate-600/70">
-        vs
-      </span>
-      <span className="font-medium text-lime-900 dark:text-lime-300">Team Huyền:</span>
-      <TeamNamePill team="huyen">
-        {court.huyen[0]} · {court.huyen[1]}
-      </TeamNamePill>
-      {court.note ? (
-        <span className="font-normal text-stone-500 dark:text-stone-500">{` ${court.note}`}</span>
-      ) : null}
-    </span>
   )
 }
 
@@ -364,7 +331,7 @@ function ScheduleRoundCard({ round, roundNumber }: { round: ScheduleRound; round
   )
 }
 
-function ScheduleBlock() {
+function ScheduleBlock({ rounds }: { rounds: ScheduleRound[] }) {
   return (
     <section
       className="mx-auto w-full max-w-4xl px-4 pt-3 sm:px-6 sm:pt-4"
@@ -396,7 +363,7 @@ function ScheduleBlock() {
             </tr>
           </thead>
           <tbody>
-            {scheduleRounds.map((round, ri) => (
+            {rounds.map((round, ri) => (
               <tr
                 key={round.id}
                 className="border-t border-slate-300/65 odd:bg-slate-200/45 dark:border-slate-700/50 dark:odd:bg-slate-800/55"
@@ -420,7 +387,7 @@ function ScheduleBlock() {
       </div>
 
       <div className="mb-10 flex flex-col gap-4 sm:hidden">
-        {scheduleRounds.map((round, ri) => (
+        {rounds.map((round, ri) => (
           <ScheduleRoundCard key={round.id} round={round} roundNumber={ri + 1} />
         ))}
       </div>
@@ -428,7 +395,7 @@ function ScheduleBlock() {
   )
 }
 
-function StandingsBlock() {
+function StandingsBlock({ rows }: { rows: TeamStandingRow[] }) {
   return (
     <section
       className="mx-auto w-full max-w-4xl px-4 pb-10 pt-3 sm:px-6 sm:pt-4"
@@ -441,7 +408,7 @@ function StandingsBlock() {
         Bảng xếp hạng hai đội
       </h2>
 
-      <StandingsTables rows={teamStandings} />
+      <StandingsTables rows={rows} />
     </section>
   )
 }
@@ -500,6 +467,11 @@ function StandingRankDisplay({ rank, compact }: { rank: number; compact?: boolea
   )
 }
 
+function formatStandingDiff(n: number) {
+  if (n > 0) return `+${n}`
+  return String(n)
+}
+
 function StandingsTables({ rows }: { rows: TeamStandingRow[] }) {
   return (
     <>
@@ -507,58 +479,93 @@ function StandingsTables({ rows }: { rows: TeamStandingRow[] }) {
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="bg-slate-700 text-white dark:bg-blue-900/92 dark:text-slate-100">
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
                 Hạng
               </th>
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
                 Đội
               </th>
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
                 Đã đấu
               </th>
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
                 Thắng
               </th>
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
                 Thua
               </th>
-              <th scope="col" className="px-5 py-4 text-sm font-semibold">
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
+                Điểm thắng
+              </th>
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
+                Điểm thua
+              </th>
+              <th scope="col" className="px-3 py-4 text-sm font-semibold lg:px-5">
+                Hiệu số
+              </th>
+              <th
+                scope="col"
+                className="px-3 py-4 text-sm font-semibold lg:px-5"
+                title="Điểm xếp hạng (số trận thắng)"
+              >
                 Điểm
               </th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr
-                key={`${row.rank}-${row.name}`}
-                className="border-t border-slate-300/65 odd:bg-slate-200/45 dark:border-slate-700/50 dark:odd:bg-slate-800/55"
-              >
-                <td className="px-5 py-4 text-stone-900 dark:text-stone-100">
-                  <StandingRankDisplay rank={row.rank} />
-                </td>
-                <td
-                  className={`px-5 py-4 font-medium ${
-                    row.name.includes('Hoài')
-                      ? 'text-red-700 dark:text-red-400'
-                      : 'text-lime-900 dark:text-lime-200'
-                  }`}
+            {rows.map((row) => {
+              const pWin = row.pointsInWins ?? 0
+              const pLoss = row.pointsInLosses ?? 0
+              const diff = row.pointDiff ?? 0
+              return (
+                <tr
+                  key={`${row.rank}-${row.name}`}
+                  className="border-t border-slate-300/65 odd:bg-slate-200/45 dark:border-slate-700/50 dark:odd:bg-slate-800/55"
                 >
-                  {row.name}
-                </td>
-                <td className="px-5 py-4 tabular-nums text-stone-900 dark:text-stone-100">
-                  {row.played}
-                </td>
-                <td className="px-5 py-4 tabular-nums text-stone-900 dark:text-stone-100">
-                  {row.won}
-                </td>
-                <td className="px-5 py-4 tabular-nums text-stone-900 dark:text-stone-100">
-                  {row.lost}
-                </td>
-                <td className="px-5 py-4 tabular-nums font-semibold text-stone-900 dark:text-stone-100">
-                  {row.points}
-                </td>
-              </tr>
-            ))}
+                  <td className="px-3 py-4 text-stone-900 lg:px-5 dark:text-stone-100">
+                    <StandingRankDisplay rank={row.rank} />
+                  </td>
+                  <td
+                    className={`px-3 py-4 font-medium lg:px-5 ${
+                      row.name.includes('Hoài')
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-lime-900 dark:text-lime-200'
+                    }`}
+                  >
+                    {row.name}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums text-stone-900 lg:px-5 dark:text-stone-100">
+                    {row.played}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums text-stone-900 lg:px-5 dark:text-stone-100">
+                    {row.won}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums text-stone-900 lg:px-5 dark:text-stone-100">
+                    {row.lost}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums text-stone-900 lg:px-5 dark:text-stone-100">
+                    {pWin}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums text-stone-900 lg:px-5 dark:text-stone-100">
+                    {pLoss}
+                  </td>
+                  <td
+                    className={`px-3 py-4 tabular-nums font-medium lg:px-5 ${
+                      diff > 0
+                        ? 'text-emerald-800 dark:text-emerald-300'
+                        : diff < 0
+                          ? 'text-rose-800 dark:text-rose-300'
+                          : 'text-stone-900 dark:text-stone-100'
+                    }`}
+                  >
+                    {formatStandingDiff(diff)}
+                  </td>
+                  <td className="px-3 py-4 tabular-nums font-semibold text-stone-900 lg:px-5 dark:text-stone-100">
+                    {row.points}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -602,7 +609,35 @@ function StandingsTables({ rows }: { rows: TeamStandingRow[] }) {
                 </dd>
               </div>
               <div className="flex justify-between gap-2">
-                <dt className="text-stone-500 dark:text-stone-400">Điểm</dt>
+                <dt className="text-stone-500 dark:text-stone-400">Điểm thắng</dt>
+                <dd className="tabular-nums font-medium text-stone-900 dark:text-stone-100">
+                  {row.pointsInWins ?? 0}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-stone-500 dark:text-stone-400">Điểm thua</dt>
+                <dd className="tabular-nums font-medium text-stone-900 dark:text-stone-100">
+                  {row.pointsInLosses ?? 0}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-stone-500 dark:text-stone-400">Hiệu số</dt>
+                <dd
+                  className={`tabular-nums font-medium ${
+                    (row.pointDiff ?? 0) > 0
+                      ? 'text-emerald-800 dark:text-emerald-300'
+                      : (row.pointDiff ?? 0) < 0
+                        ? 'text-rose-800 dark:text-rose-300'
+                        : 'text-stone-900 dark:text-stone-100'
+                  }`}
+                >
+                  {formatStandingDiff(row.pointDiff ?? 0)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-stone-500 dark:text-stone-400" title="Điểm xếp hạng (số trận thắng)">
+                  Điểm
+                </dt>
                 <dd className="tabular-nums font-semibold text-stone-900 dark:text-stone-100">
                   {row.points}
                 </dd>
@@ -618,12 +653,40 @@ function StandingsTables({ rows }: { rows: TeamStandingRow[] }) {
 function App() {
   const tabRootId = useId()
   const [tab, setTab] = useState<MainTab>('info')
+  const [live, setLive] = useState<TournamentApiState | null>(null)
+
   const infoTabId = `${tabRootId}-tab-info`
   const scheduleTabId = `${tabRootId}-tab-schedule`
   const standingsTabId = `${tabRootId}-tab-standings`
   const infoPanelId = `${tabRootId}-panel-info`
   const schedulePanelId = `${tabRootId}-panel-schedule`
   const standingsPanelId = `${tabRootId}-panel-standings`
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      const s = await fetchTournamentState()
+      if (!cancelled && s) setLive(s)
+    }
+    load()
+    const id = setInterval(load, 15000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [])
+
+  const displaySchedule = useMemo((): ScheduleRound[] => {
+    const sc = live?.scores
+    if (!sc) return scheduleRounds
+    return scheduleRounds.map((r) => ({
+      ...r,
+      scoreCourtOne: sc[r.id]?.courtOne ?? r.scoreCourtOne,
+      scoreCourtTwo: sc[r.id]?.courtTwo ?? r.scoreCourtTwo,
+    }))
+  }, [live])
+
+  const standingsRows = useMemo(() => live?.standings ?? teamStandings, [live])
 
   const tabButtonClass = (active: boolean) =>
     [
@@ -727,7 +790,7 @@ function App() {
           aria-labelledby={scheduleTabId}
           hidden={tab !== 'schedule'}
         >
-          <ScheduleBlock />
+          <ScheduleBlock rounds={displaySchedule} />
         </div>
 
         <div
@@ -736,12 +799,20 @@ function App() {
           aria-labelledby={standingsTabId}
           hidden={tab !== 'standings'}
         >
-          <StandingsBlock />
+          <StandingsBlock rows={standingsRows} />
         </div>
       </main>
 
       <footer className="border-t border-slate-300/85 bg-white/55 py-8 text-center text-sm text-stone-500 dark:border-slate-700/45 dark:bg-blue-950/55 dark:text-slate-400">
         <p>KSTN K46 — pickerball — chúc các đội thi đấu vui và an toàn.</p>
+        <p className="mt-2 text-xs text-stone-400 dark:text-slate-500">
+          <a
+            href="/admin"
+            className="underline decoration-slate-400/80 underline-offset-2 hover:text-stone-600 dark:hover:text-slate-300"
+          >
+            Nhập tỷ số (admin)
+          </a>
+        </p>
       </footer>
     </div>
   )

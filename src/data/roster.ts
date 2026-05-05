@@ -71,8 +71,10 @@ export const teamRosterTableFrameClass = {
 
 /**
  * Hai sân song song — 15h15→18h15 (180′): 10 lượt × 18′.
- * Nhóm A (lé): Thuỷ, Gianh, Thành, Vũ × đối thủ Trung, An, Tiến, Lâm — nhóm B (chẵn): HoangfNH, Dương, Diễn, Hoài × Hùng, Thủy Tini, Thoa, Huyền.
- * Mỗi cặp đồng đội (cùng sân) đánh cùng nhau tối đa 2 trận (xoay 3 cách ghép trong nhóm 4).
+ * Nhóm A (lé): Thuỷ, Gianh, Thành, Vũ × đối thủ Trung, An, Tiến, Lâm — nhóm B (chẵn): Hoàng Baby, Dương, Diễn, Hoài × Hùng, Thủy Tini, Thoa, Huyền.
+ * Lẻ: hai sân cùng nhóm A; chẵn: hai sân cùng nhóm B.
+ * Mỗi cặp đồng đội (cùng sân, trong nhóm 4) đánh cùng nhau tối đa 2 lần.
+ * Không có cặp đấu (đôi Hoài × đôi Huyền) lặp lại giữa các lượt.
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
@@ -84,7 +86,7 @@ export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r2',
     timeSlot: '15h33–15h51',
-    courtOne: { hoai: ['HoangfNH', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
+    courtOne: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
     courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
   },
   {
@@ -96,7 +98,7 @@ export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r4',
     timeSlot: '16h09–16h27',
-    courtOne: { hoai: ['HoangfNH', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
+    courtOne: { hoai: ['Hoàng Baby', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
     courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
   },
   {
@@ -108,32 +110,32 @@ export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r6',
     timeSlot: '16h45–17h03',
-    courtOne: { hoai: ['HoangfNH', 'Hoài'], huyen: ['Hùng', 'Huyền'] },
+    courtOne: { hoai: ['Hoàng Baby', 'Hoài'], huyen: ['Hùng', 'Huyền'] },
     courtTwo: { hoai: ['Dương', 'Diễn'], huyen: ['Thủy Tini', 'Thoa'] },
   },
   {
     id: 'r7',
     timeSlot: '17h03–17h21',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'An'] },
-    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['Tiến', 'Lâm'] },
+    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'Tiến'] },
+    courtTwo: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'An'] },
   },
   {
     id: 'r8',
     timeSlot: '17h21–17h39',
-    courtOne: { hoai: ['HoangfNH', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
-    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
+    courtOne: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['Thủy Tini', 'Thoa'] },
+    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
   },
   {
     id: 'r9',
     timeSlot: '17h39–17h57',
-    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Tiến'] },
-    courtTwo: { hoai: ['Gianh', 'Vũ'], huyen: ['An', 'Lâm'] },
+    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['An', 'Tiến'] },
+    courtTwo: { hoai: ['Gianh', 'Thành'], huyen: ['Tiến', 'Lâm'] },
   },
   {
     id: 'r10',
     timeSlot: '17h57–18h15',
-    courtOne: { hoai: ['HoangfNH', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
-    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
+    courtOne: { hoai: ['Hoàng Baby', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
+    courtTwo: { hoai: ['Dương', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
   },
 ]
 
@@ -144,11 +146,37 @@ export type TeamStandingRow = {
   won: number
   lost: number
   points: number
+  /** Tổng điểm đội ghi trong các trận thắng. */
+  pointsInWins: number
+  /** Tổng điểm đội ghi trong các trận thua. */
+  pointsInLosses: number
+  /** Hiệu số: tổng điểm ghi − điểm đối thủ (mọi trận). */
+  pointDiff: number
 }
 
 export const teamStandings: TeamStandingRow[] = [
-  { rank: 1, name: 'Team Hoài', played: 0, won: 0, lost: 0, points: 0 },
-  { rank: 2, name: 'Team Huyền', played: 0, won: 0, lost: 0, points: 0 },
+  {
+    rank: 1,
+    name: 'Team Hoài',
+    played: 0,
+    won: 0,
+    lost: 0,
+    points: 0,
+    pointsInWins: 0,
+    pointsInLosses: 0,
+    pointDiff: 0,
+  },
+  {
+    rank: 2,
+    name: 'Team Huyền',
+    played: 0,
+    won: 0,
+    lost: 0,
+    points: 0,
+    pointsInWins: 0,
+    pointsInLosses: 0,
+    pointDiff: 0,
+  },
 ]
 
 function courtFacesTierPair(court: ScheduleCourt, teamHoai: string, teamHuyen: string): boolean {
@@ -220,7 +248,7 @@ export const rosterSections: RosterSection[] = [
         teamHoai: 'Vũ',
         teamHuyen: 'Lâm',
       },
-      { teamHoai: 'HoangfNH', teamHuyen: 'Hùng' },
+      { teamHoai: 'Hoàng Baby', teamHuyen: 'Hùng' },
     ],
   },
   {
