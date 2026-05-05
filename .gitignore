@@ -15,8 +15,13 @@ Thumbs.db
 .env.*
 !.env.example
 
-# Dependencies (uncomment when you add a stack)
-# node_modules/
+# Node / Vite
+node_modules
+dist
+dist-ssr
+*.local
+
+# Python / other (optional)
 # vendor/
 # __pycache__/
 # *.pyc
