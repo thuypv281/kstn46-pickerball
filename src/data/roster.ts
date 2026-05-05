@@ -70,23 +70,21 @@ export const teamRosterTableFrameClass = {
 } as const
 
 /**
- * Hai sân song song — 15h15→18h15 (180′): 10 lượt × 18′ (≈15′ thi đấu + ~3′ nghỉ).
- * 20 trận đôi: luân phiên hai nhóm 8 người (không ai đấu hai lượt liền); mỗi VĐV đúng 5 trận.
+ * Hai sân song song — 15h15→18h15 (180′): 10 lượt × 18′.
+ * Nhóm A (lé): Thuỷ, Gianh, Thành, Vũ × đối thủ Trung, An, Tiến, Lâm — nhóm B (chẵn): HoangfNH, Dương, Diễn, Hoài × Hùng, Thủy Tini, Thoa, Huyền.
+ * Mỗi cặp đồng đội (cùng sân) đánh cùng nhau tối đa 2 trận (xoay 3 cách ghép trong nhóm 4).
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
     timeSlot: '15h15–15h33',
     courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'An'] },
-    courtTwo: {
-      hoai: ['Thành', 'Vũ'],
-      huyen: ['Tiến', 'Lâm'],
-    },
+    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['Tiến', 'Lâm'] },
   },
   {
     id: 'r2',
     timeSlot: '15h33–15h51',
-    courtOne: { hoai: ['Hoàng NH', 'Dương'], huyen: ['Hùng', 'Ngọc'] },
+    courtOne: { hoai: ['HoangfNH', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
     courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
   },
   {
@@ -98,44 +96,44 @@ export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r4',
     timeSlot: '16h09–16h27',
-    courtOne: { hoai: ['Hoàng NH', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
-    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Ngọc', 'Huyền'] },
+    courtOne: { hoai: ['HoangfNH', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
+    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
   },
   {
     id: 'r5',
     timeSlot: '16h27–16h45',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'Tiến'] },
-    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['An', 'Lâm'] },
+    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['Trung', 'Lâm'] },
+    courtTwo: { hoai: ['Gianh', 'Thành'], huyen: ['An', 'Tiến'] },
   },
   {
     id: 'r6',
     timeSlot: '16h45–17h03',
-    courtOne: { hoai: ['Hoàng NH', 'Dương'], huyen: ['Hùng', 'Thoa'] },
-    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Ngọc', 'Huyền'] },
+    courtOne: { hoai: ['HoangfNH', 'Hoài'], huyen: ['Hùng', 'Huyền'] },
+    courtTwo: { hoai: ['Dương', 'Diễn'], huyen: ['Thủy Tini', 'Thoa'] },
   },
   {
     id: 'r7',
     timeSlot: '17h03–17h21',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'Lâm'] },
-    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['An', 'Tiến'] },
+    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'An'] },
+    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['Tiến', 'Lâm'] },
   },
   {
     id: 'r8',
     timeSlot: '17h21–17h39',
-    courtOne: { hoai: ['Hoàng NH', 'Dương'], huyen: ['Hùng', 'Huyền'] },
-    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Ngọc', 'Thoa'] },
+    courtOne: { hoai: ['HoangfNH', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
+    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
   },
   {
     id: 'r9',
     timeSlot: '17h39–17h57',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['An', 'Tiến'] },
-    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['Trung', 'Lâm'] },
+    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Tiến'] },
+    courtTwo: { hoai: ['Gianh', 'Vũ'], huyen: ['An', 'Lâm'] },
   },
   {
     id: 'r10',
     timeSlot: '17h57–18h15',
-    courtOne: { hoai: ['Hoàng NH', 'Dương'], huyen: ['Ngọc', 'Thoa'] },
-    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Hùng', 'Huyền'] },
+    courtOne: { hoai: ['HoangfNH', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
+    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
   },
 ]
 
@@ -222,14 +220,14 @@ export const rosterSections: RosterSection[] = [
         teamHoai: 'Vũ',
         teamHuyen: 'Lâm',
       },
-      { teamHoai: 'Hoàng NH', teamHuyen: 'Hùng' },
+      { teamHoai: 'HoangfNH', teamHuyen: 'Hùng' },
     ],
   },
   {
     id: 'phong-trao',
     label: 'Phong trào',
     rows: [
-      { teamHoai: 'Dương', teamHuyen: 'Ngọc' },
+      { teamHoai: 'Dương', teamHuyen: 'Thủy Tini' },
       { teamHoai: 'Diễn', teamHuyen: 'Thoa' },
       { teamHoai: 'Hoài', teamHuyen: 'Huyền' },
     ],
