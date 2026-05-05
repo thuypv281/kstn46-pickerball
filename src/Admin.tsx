@@ -11,6 +11,20 @@ function emptyScoresMap(): ScoresMap {
   return m
 }
 
+function buildTrimmedPayload(map: ScoresMap): ScoresMap {
+  const trimmed: ScoresMap = {}
+  for (const r of scheduleRounds) {
+    const s = map[r.id] || {}
+    const c1 = s.courtOne?.trim()
+    const c2 = s.courtTwo?.trim()
+    const entry: { courtOne?: string; courtTwo?: string } = {}
+    if (c1) entry.courtOne = c1
+    if (c2) entry.courtTwo = c2
+    if (Object.keys(entry).length > 0) trimmed[r.id] = entry
+  }
+  return trimmed
+}
+
 type CourtKey = 'courtOne' | 'courtTwo'
 
 type MatchModalState = {
@@ -26,8 +40,9 @@ type MatchEditModalProps = {
   courtLabel: string
   court: ScheduleCourt
   initialScore: string
+  isSaving?: boolean
   onClose: () => void
-  onSave: (value: string) => void
+  onSave: (value: string) => void | Promise<void>
 }
 
 function MatchEditModal({
@@ -37,6 +52,7 @@ function MatchEditModal({
   courtLabel,
   court,
   initialScore,
+  isSaving = false,
   onClose,
   onSave,
 }: MatchEditModalProps) {
@@ -65,8 +81,8 @@ function MatchEditModal({
 
   if (!open) return null
 
-  const handleSave = () => {
-    onSave(draft.trim())
+  const handleSave = async () => {
+    await Promise.resolve(onSave(draft.trim()))
     onClose()
   }
 
@@ -109,7 +125,7 @@ function MatchEditModal({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  handleSave()
+                  void handleSave()
                 }
               }}
             />
@@ -129,10 +145,11 @@ function MatchEditModal({
           </button>
           <button
             type="button"
-            onClick={handleSave}
-            className="rounded-xl bg-red-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 dark:bg-red-900 dark:hover:bg-red-800"
+            onClick={() => void handleSave()}
+            disabled={isSaving}
+            className="rounded-xl bg-red-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:opacity-60 dark:bg-red-900 dark:hover:bg-red-800"
           >
-            Lưu tỷ số
+            {isSaving ? 'Đang lưu…' : 'Lưu tỷ số'}
           </button>
         </div>
       </div>
@@ -179,37 +196,20 @@ export default function Admin() {
     }
   }, [modal])
 
-  const updateField = (roundId: string, court: CourtKey, v: string) => {
-    setScores((prev) => ({
-      ...prev,
-      [roundId]: {
-        ...prev[roundId],
-        [court]: v,
-      },
-    }))
-  }
-
-  const handleSave = async () => {
+  const persistToServer = useCallback(async (map: ScoresMap) => {
     setSaving(true)
     setMessage(null)
-    const trimmed: ScoresMap = {}
-    for (const r of scheduleRounds) {
-      const s = scores[r.id] || {}
-      const c1 = s.courtOne?.trim()
-      const c2 = s.courtTwo?.trim()
-      const entry: { courtOne?: string; courtTwo?: string } = {}
-      if (c1) entry.courtOne = c1
-      if (c2) entry.courtTwo = c2
-      if (Object.keys(entry).length > 0) trimmed[r.id] = entry
-    }
+    const trimmed = buildTrimmedPayload(map)
     const out = await saveTournamentScores(trimmed)
     setSaving(false)
     if (out?.saved) {
-      setMessage('Đã lưu. Trang chủ sẽ hiển thị tỷ số & BXH sau khi tải lại hoặc vài giây.')
+      setMessage('Đã lưu lên server. Trang chủ sẽ hiển thị tỷ số & BXH sau vài giây.')
     } else {
-      setMessage('Không lưu được — kiểm tra server (chạy npm run dev với API).')
+      setMessage('Không lưu được — kiểm tra API và biến VITE_API_BASE_URL trên Vercel (rồi redeploy).')
     }
-  }
+  }, [])
+
+  const handleSave = () => void persistToServer(scores)
 
   const modalRound = modal ? scheduleRounds.find((r) => r.id === modal.roundId) : undefined
   const modalCourt: ScheduleCourt | undefined =
@@ -227,8 +227,9 @@ export default function Admin() {
         </p>
         <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Admin — nhập tỷ số</h1>
         <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-          Chọn <strong>Nhập tỷ số</strong> hoặc <strong>Sửa tỷ số</strong> từng trận. Sau đó dùng <strong>Lưu lên server</strong>{' '}
-          để đồng bộ trang chủ.
+          Chọn <strong>Nhập tỷ số</strong> / <strong>Sửa tỷ số</strong> — <strong>Lưu tỷ số</strong> trong popup sẽ <strong>gửi lên server</strong>{' '}
+          (cùng địa chỉ API với <code className="text-stone-800 dark:text-stone-200">VITE_API_BASE_URL</code>). Nút{' '}
+          <strong>Lưu lên server</strong> bên dưới lưu toàn bộ bảng một lần.
         </p>
         {message ? (
           <p className="mt-4 rounded-lg border border-slate-300/80 bg-white/80 px-4 py-3 text-sm dark:border-slate-600 dark:bg-slate-900/70">
@@ -315,9 +316,19 @@ export default function Admin() {
           courtLabel={modal.courtKey === 'courtOne' ? 'Sân 1' : 'Sân 2'}
           court={modalCourt}
           initialScore={modalInitial}
+          isSaving={saving}
           onClose={() => setModal(null)}
-          onSave={(value) => {
-            if (modal) updateField(modal.roundId, modal.courtKey, value)
+          onSave={async (value) => {
+            if (!modal) return
+            const next: ScoresMap = {
+              ...scores,
+              [modal.roundId]: {
+                ...scores[modal.roundId],
+                [modal.courtKey]: value,
+              },
+            }
+            setScores(next)
+            await persistToServer(next)
           }}
         />
       ) : null}

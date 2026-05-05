@@ -11,6 +11,24 @@ const DATA_PATH = path.join(ROOT, 'data', 'tournament-state.json')
 const ROUND_IDS = Array.from({ length: 10 }, (_, i) => `r${i + 1}`)
 
 const app = express()
+
+/** Cho phép trang trên Vercel gọi API host khác (chỉ cần khi tách frontend / backend). */
+app.use((req, res, next) => {
+  const allow =
+    process.env.CORS_ORIGIN ||
+    (process.env.NODE_ENV === 'production' ? '*' : undefined)
+  if (allow) {
+    res.setHeader('Access-Control-Allow-Origin', allow)
+    res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  }
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204)
+    return
+  }
+  next()
+})
+
 app.use(express.json({ limit: '512kb' }))
 
 async function readState() {
