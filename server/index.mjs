@@ -112,7 +112,8 @@ if (isProd) {
 }
 
 const PORT = Number(process.env.PORT || 5050)
-const HOST = process.env.HOST || '127.0.0.1'
+/** Railway/Docker cần 0.0.0.0; chỉ 127.0.0.1 → proxy báo 502. */
+const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1')
 
 /** Keep Node alive when spawned under tools that close stdin (e.g. some runners). */
 if (process.stdin.isTTY !== true) {
