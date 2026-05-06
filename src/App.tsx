@@ -174,11 +174,8 @@ function TeamRosterTable({
                 <th scope="col" className="px-4 py-3 text-sm font-semibold sm:px-5 sm:py-4">
                   Thành viên
                 </th>
-                <th scope="col" className="whitespace-nowrap px-4 py-3 text-sm font-semibold sm:px-5 sm:py-4">
-                  Hạng
-                </th>
-                <th scope="col" className="min-w-[12rem] px-4 py-3 text-sm font-semibold sm:min-w-[14rem] sm:px-5 sm:py-4">
-                  Lịch thi đấu
+                <th scope="col" className="min-w-[12rem] px-4 py-3 text-sm font-semibold sm:min-w-[16rem] sm:px-5 sm:py-4">
+                  Các vòng thi đấu
                 </th>
               </tr>
             </thead>
@@ -196,11 +193,8 @@ function TeamRosterTable({
                   <td className="px-4 py-3 sm:px-5 sm:py-4">
                     <span className={teamMemberNameClass[side]}>{row.member}</span>
                   </td>
-                  <td className="px-4 py-3 text-stone-800 sm:px-5 sm:py-4 dark:text-stone-200">
-                    {row.tierLabel}
-                  </td>
                   <td className="max-w-[16rem] px-4 py-3 sm:max-w-none sm:px-5 sm:py-4">
-                    <RosterTierScheduleCell slots={row.tierPairSlots} />
+                    <RosterTierScheduleCell slots={row.roundSlots} />
                   </td>
                 </tr>
               ))}
@@ -260,6 +254,13 @@ function TournamentDetailsSection() {
           <div className="flex flex-wrap items-baseline gap-x-2">
             <dt className="m-0 shrink-0 font-semibold text-stone-800 dark:text-stone-100">Mỗi lượt sân:</dt>
             <dd className="m-0 min-w-0">{playCadenceBody}</dd>
+          </div>
+          <div className="flex flex-wrap items-baseline gap-x-2 border-t border-slate-200/80 pt-4 dark:border-slate-600/55">
+            <dt className="m-0 shrink-0 font-semibold text-stone-800 dark:text-stone-100">Lịch từng thành viên:</dt>
+            <dd className="m-0 min-w-0">
+              Bảng dưới mỗi team liệt kê <strong>các vòng</strong> mà người đó <strong>có ra sân</strong> trong lịch lưới (Sân 1 hoặc
+              Sân 2), khớp với tab Lịch thi đấu.
+            </dd>
           </div>
         </dl>
       </div>

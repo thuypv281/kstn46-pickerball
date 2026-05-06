@@ -16,7 +16,8 @@ export const tournamentMeta = {
   /** Tiêu đề tab + khối thông tin (thay nhãn “Thông tin giải đấu”). */
   infoHeading: 'Giải đấu Picker Ball — KSTN K46 25 năm ra trường 2006-2026',
   subtitle: 'Đối kháng thi đấu đôi: Team Hoài vs Team Huyền',
-  competitionFormat: 'Đối kháng đôi giữa 2 team',
+  competitionFormat:
+    'Đối kháng đôi hai team (không phân hạng). Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Mỗi VĐV không đánh ba trận ở ba vòng liên tiếp trên một phía (tối đa hai vòng liền trước khi nghỉ ít nhất một vòng). (Cấm «hai vòng liên tiếp cho mỗi người» vẫn không tương thích đồng thời với đủ 4 người/phía mỗi vòng.)',
   /** Cập nhật khi có lịch cụ thể. */
   date: '15h15–18h15, ngày 09/05/2026',
   /** Cập nhật địa điểm khi xác nhận. */
@@ -25,7 +26,7 @@ export const tournamentMeta = {
   venueMapsUrl:
     'https://www.google.com/maps/search/?api=1&query=21.043428087366056,105.88488985360581',
   /** Gợi ý luật thời lượng sân (hiển thị dưới header nếu cần). */
-  playCadenceNote: 'Mỗi lượt sân: ~15′ thi đấu + ~3′ nghỉ; chạm 15.',
+  playCadenceNote: 'Khung thi đấu 180′ chia 7 lượt (~26′ / lượt); chạm 15.',
 }
 
 /** Mốc thời gian thi đấu (GMT+7) — dùng cho đồng hồ đếm ngược; chỉnh khi đổi lịch. */
@@ -70,72 +71,52 @@ export const teamRosterTableFrameClass = {
 } as const
 
 /**
- * Hai sân song song — 15h15→18h15 (180′): 10 lượt × 18′.
- * Nhóm A (lé): Thuỷ, Gianh, Thành, Vũ × đối thủ Trung, An, Tiến, Lâm — nhóm B (chẵn): Hoàng Baby, Dương, Diễn, Hoài × Hùng, Thủy Tini, Thoa, Huyền.
- * Lẻ: hai sân cùng nhóm A; chẵn: hai sân cùng nhóm B.
- * Mỗi cặp đồng đội (cùng sân, trong nhóm 4) đánh cùng nhau tối đa 2 lần.
- * Không có cặp đấu (đôi Hoài × đôi Huyền) lặp lại giữa các lượt.
+ * Hai sân song song — 15h15→18h15 (180′): 7 lượt chia đều thời gian.
+ * 7 VĐV Team Hoài × 7 Team Huyền; mỗi lượt 4 người mỗi phía trên hai sân; mỗi VĐV 4 trận.
+ * Sinh bằng scripts/generate-schedule.mjs (ràng buộc mô tả ở đầu file script và trong tournamentMeta.competitionFormat).
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
-    timeSlot: '15h15–15h33',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'An'] },
-    courtTwo: { hoai: ['Thành', 'Vũ'], huyen: ['Tiến', 'Lâm'] },
+    timeSlot: '15h15–15h41',
+    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Lâm'] },
+    courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Tiến', 'Huyền'] },
   },
   {
     id: 'r2',
-    timeSlot: '15h33–15h51',
-    courtOne: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['Hùng', 'Thủy Tini'] },
-    courtTwo: { hoai: ['Diễn', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
+    timeSlot: '15h41–16h06',
+    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['An', 'Huyền'] },
+    courtTwo: { hoai: ['Hoàng Baby', 'Thùy Tini'], huyen: ['Tiến', 'Lâm'] },
   },
   {
     id: 'r3',
-    timeSlot: '15h51–16h09',
-    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Tiến'] },
-    courtTwo: { hoai: ['Gianh', 'Vũ'], huyen: ['An', 'Lâm'] },
+    timeSlot: '16h06–16h32',
+    courtOne: { hoai: ['Thành', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
+    courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['An', 'Hùng'] },
   },
   {
     id: 'r4',
-    timeSlot: '16h09–16h27',
-    courtOne: { hoai: ['Hoàng Baby', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
-    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
+    timeSlot: '16h32–16h58',
+    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Hùng', 'Huyền'] },
+    courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Lâm', 'Diễn'] },
   },
   {
     id: 'r5',
-    timeSlot: '16h27–16h45',
-    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['Trung', 'Lâm'] },
-    courtTwo: { hoai: ['Gianh', 'Thành'], huyen: ['An', 'Tiến'] },
+    timeSlot: '16h58–17h24',
+    courtOne: { hoai: ['Thuỷ', 'Thùy Tini'], huyen: ['An', 'Huyền'] },
+    courtTwo: { hoai: ['Vũ', 'Dương'], huyen: ['Trung', 'Tiến'] },
   },
   {
     id: 'r6',
-    timeSlot: '16h45–17h03',
-    courtOne: { hoai: ['Hoàng Baby', 'Hoài'], huyen: ['Hùng', 'Huyền'] },
-    courtTwo: { hoai: ['Dương', 'Diễn'], huyen: ['Thủy Tini', 'Thoa'] },
+    timeSlot: '17h24–17h49',
+    courtOne: { hoai: ['Gianh', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
+    courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['Lâm', 'Hùng'] },
   },
   {
     id: 'r7',
-    timeSlot: '17h03–17h21',
-    courtOne: { hoai: ['Thuỷ', 'Gianh'], huyen: ['Trung', 'Tiến'] },
-    courtTwo: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'An'] },
-  },
-  {
-    id: 'r8',
-    timeSlot: '17h21–17h39',
-    courtOne: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['Thủy Tini', 'Thoa'] },
-    courtTwo: { hoai: ['Dương', 'Hoài'], huyen: ['Thoa', 'Huyền'] },
-  },
-  {
-    id: 'r9',
-    timeSlot: '17h39–17h57',
-    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['An', 'Tiến'] },
-    courtTwo: { hoai: ['Gianh', 'Thành'], huyen: ['Tiến', 'Lâm'] },
-  },
-  {
-    id: 'r10',
-    timeSlot: '17h57–18h15',
-    courtOne: { hoai: ['Hoàng Baby', 'Hoài'], huyen: ['Thủy Tini', 'Huyền'] },
-    courtTwo: { hoai: ['Dương', 'Diễn'], huyen: ['Hùng', 'Thoa'] },
+    timeSlot: '17h49–18h15',
+    courtOne: { hoai: ['Gianh', 'Thành'], huyen: ['Tiến', 'Diễn'] },
+    courtTwo: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['An', 'Hùng'] },
   },
 ]
 
@@ -179,30 +160,31 @@ export const teamStandings: TeamStandingRow[] = [
   },
 ]
 
-function courtFacesTierPair(court: ScheduleCourt, teamHoai: string, teamHuyen: string): boolean {
-  return court.hoai.includes(teamHoai) && court.huyen.includes(teamHuyen)
-}
-
 export type TierPairScheduleSlot = {
   roundNumber: number
   timeSlot: string
   courtLabel: string
 }
 
-/** Các lượt mà hai VĐV đồng hạng (Hoài × Huyền) cùng nằm trong một trận đôi (hai bên sân). */
-export function scheduleSlotsForTierPair(
-  teamHoai: string,
-  teamHuyen: string,
+/** Các lượt trong đó `member` thi đấu đôi cho phía `side` (Sân 1 hoặc 2). */
+export function scheduleSlotsForTeamMember(
+  member: string,
+  side: 'hoai' | 'huyen',
   rounds: ScheduleRound[] = scheduleRounds
 ): TierPairScheduleSlot[] {
   const out: TierPairScheduleSlot[] = []
   rounds.forEach((round, idx) => {
     const roundNumber = idx + 1
-    if (courtFacesTierPair(round.courtOne, teamHoai, teamHuyen)) {
-      out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 1' })
-    }
-    if (courtFacesTierPair(round.courtTwo, teamHoai, teamHuyen)) {
-      out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 2' })
+    if (side === 'hoai') {
+      if (round.courtOne.hoai.includes(member))
+        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 1' })
+      else if (round.courtTwo.hoai.includes(member))
+        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 2' })
+    } else {
+      if (round.courtOne.huyen.includes(member))
+        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 1' })
+      else if (round.courtTwo.huyen.includes(member))
+        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 2' })
     }
   })
   return out
@@ -210,10 +192,8 @@ export function scheduleSlotsForTierPair(
 
 export type RosterTeamTableRow = {
   key: string
-  tierLabel: string
   member: string
-  opponent: string
-  tierPairSlots: TierPairScheduleSlot[]
+  roundSlots: TierPairScheduleSlot[]
 }
 
 /** Các hàng của một đội theo thứ tự hạng trong `sections`. */
@@ -224,12 +204,11 @@ export function buildRosterRowsForTeam(
   const out: RosterTeamTableRow[] = []
   for (const section of sections) {
     for (const row of section.rows) {
+      const name = side === 'hoai' ? row.teamHoai : row.teamHuyen
       out.push({
-        key: `${section.id}-${row.teamHoai}-${row.teamHuyen}-${side}`,
-        tierLabel: section.label,
-        member: side === 'hoai' ? row.teamHoai : row.teamHuyen,
-        opponent: side === 'hoai' ? row.teamHuyen : row.teamHoai,
-        tierPairSlots: scheduleSlotsForTierPair(row.teamHoai, row.teamHuyen),
+        key: `${section.id}-${name}-${side}`,
+        member: name,
+        roundSlots: scheduleSlotsForTeamMember(name, side),
       })
     }
   }
@@ -238,26 +217,16 @@ export function buildRosterRowsForTeam(
 
 export const rosterSections: RosterSection[] = [
   {
-    id: 'chu-luc',
-    label: 'Chủ lực',
+    id: 'thanhvien',
+    label: 'Thành viên',
     rows: [
       { teamHoai: 'Thuỷ', teamHuyen: 'Trung' },
       { teamHoai: 'Gianh', teamHuyen: 'An' },
       { teamHoai: 'Thành', teamHuyen: 'Tiến' },
-      {
-        teamHoai: 'Vũ',
-        teamHuyen: 'Lâm',
-      },
+      { teamHoai: 'Vũ', teamHuyen: 'Lâm' },
       { teamHoai: 'Hoàng Baby', teamHuyen: 'Hùng' },
-    ],
-  },
-  {
-    id: 'phong-trao',
-    label: 'Phong trào',
-    rows: [
-      { teamHoai: 'Dương', teamHuyen: 'Thủy Tini' },
-      { teamHoai: 'Diễn', teamHuyen: 'Thoa' },
-      { teamHoai: 'Hoài', teamHuyen: 'Huyền' },
+      { teamHoai: 'Dương', teamHuyen: 'Diễn' },
+      { teamHoai: 'Thùy Tini', teamHuyen: 'Huyền' },
     ],
   },
 ]

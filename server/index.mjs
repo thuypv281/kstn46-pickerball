@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const DATA_PATH = path.join(ROOT, 'data', 'tournament-state.json')
 
-const ROUND_IDS = Array.from({ length: 10 }, (_, i) => `r${i + 1}`)
+const ROUND_IDS = Array.from({ length: 7 }, (_, i) => `r${i + 1}`)
 
 const app = express()
 
