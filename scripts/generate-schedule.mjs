@@ -223,8 +223,8 @@ function randomTrial(seed) {
 
 function timeSlots() {
   const startMin = 15 * 60 + 15
-  const endMin = 18 * 60 + 15
-  const step = (endMin - startMin) / NUM_ROUNDS
+  /** Mỗi lượt trên lịch: 15′ thi đấu + 3′ nghỉ trước lượt tiếp → 18′ / lượt. */
+  const blockMin = 15 + 3
   const fmt = (m) => {
     const h = Math.floor(m / 60)
     const mm = Math.round(m % 60)
@@ -232,8 +232,8 @@ function timeSlots() {
   }
   const out = []
   for (let i = 0; i < NUM_ROUNDS; i++) {
-    const a = startMin + i * step
-    const b = startMin + (i + 1) * step
+    const a = startMin + i * blockMin
+    const b = startMin + (i + 1) * blockMin
     out.push(`${fmt(a)}–${fmt(b)}`)
   }
   return out

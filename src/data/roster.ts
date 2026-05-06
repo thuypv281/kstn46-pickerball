@@ -19,20 +19,20 @@ export const tournamentMeta = {
   competitionFormat:
     'Đối kháng đôi hai team (không phân hạng). Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Mỗi VĐV không đánh ba trận ở ba vòng liên tiếp trên một phía (tối đa hai vòng liền trước khi nghỉ ít nhất một vòng). (Cấm «hai vòng liên tiếp cho mỗi người» vẫn không tương thích đồng thời với đủ 4 người/phía mỗi vòng.)',
   /** Cập nhật khi có lịch cụ thể. */
-  date: '15h15–18h15, ngày 09/05/2026',
+  date: '15h15–17h21, ngày 09/05/2026',
   /** Cập nhật địa điểm khi xác nhận. */
   venue: 'Số 202C Phố Nguyễn Sơn, Long Biên',
   /** Google Maps (tọa độ sân / điểm hẹn). */
   venueMapsUrl:
     'https://www.google.com/maps/search/?api=1&query=21.043428087366056,105.88488985360581',
   /** Gợi ý luật thời lượng sân (hiển thị dưới header nếu cần). */
-  playCadenceNote: 'Khung thi đấu 180′ chia 7 lượt (~26′ / lượt); chạm 15.',
+  playCadenceNote: 'Mỗi lượt sân: 15′ thi đấu + 3′ nghỉ; chạm 15.',
 }
 
 /** Mốc thời gian thi đấu (GMT+7) — dùng cho đồng hồ đếm ngược; chỉnh khi đổi lịch. */
 export const tournamentWindow = {
   startsAt: '2026-05-09T15:15:00+07:00',
-  endsAt: '2026-05-09T18:15:00+07:00',
+  endsAt: '2026-05-09T17:21:00+07:00',
 } as const
 
 /** Một trận đôi: cặp Team Hoài × cặp Team Huyền. */
@@ -71,50 +71,50 @@ export const teamRosterTableFrameClass = {
 } as const
 
 /**
- * Hai sân song song — 15h15→18h15 (180′): 7 lượt chia đều thời gian.
+ * Hai sân song song — 15h15→17h21: 7 lượt × 18′ (15′ thi đấu + 3′ nghỉ).
  * 7 VĐV Team Hoài × 7 Team Huyền; mỗi lượt 4 người mỗi phía trên hai sân; mỗi VĐV 4 trận.
  * Sinh bằng scripts/generate-schedule.mjs (ràng buộc mô tả ở đầu file script và trong tournamentMeta.competitionFormat).
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
-    timeSlot: '15h15–15h41',
+    timeSlot: '15h15–15h33',
     courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Lâm'] },
     courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Tiến', 'Huyền'] },
   },
   {
     id: 'r2',
-    timeSlot: '15h41–16h06',
+    timeSlot: '15h33–15h51',
     courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['An', 'Huyền'] },
     courtTwo: { hoai: ['Hoàng Baby', 'Thùy Tini'], huyen: ['Tiến', 'Lâm'] },
   },
   {
     id: 'r3',
-    timeSlot: '16h06–16h32',
+    timeSlot: '15h51–16h09',
     courtOne: { hoai: ['Thành', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
     courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['An', 'Hùng'] },
   },
   {
     id: 'r4',
-    timeSlot: '16h32–16h58',
+    timeSlot: '16h09–16h27',
     courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Hùng', 'Huyền'] },
     courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Lâm', 'Diễn'] },
   },
   {
     id: 'r5',
-    timeSlot: '16h58–17h24',
+    timeSlot: '16h27–16h45',
     courtOne: { hoai: ['Thuỷ', 'Thùy Tini'], huyen: ['An', 'Huyền'] },
     courtTwo: { hoai: ['Vũ', 'Dương'], huyen: ['Trung', 'Tiến'] },
   },
   {
     id: 'r6',
-    timeSlot: '17h24–17h49',
+    timeSlot: '16h45–17h03',
     courtOne: { hoai: ['Gianh', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
     courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['Lâm', 'Hùng'] },
   },
   {
     id: 'r7',
-    timeSlot: '17h49–18h15',
+    timeSlot: '17h03–17h21',
     courtOne: { hoai: ['Gianh', 'Thành'], huyen: ['Tiến', 'Diễn'] },
     courtTwo: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['An', 'Hùng'] },
   },
