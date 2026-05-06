@@ -5,19 +5,23 @@
  * (2) Mỗi đôi đồng đội (hai người một bên) tối đa 2 trận trong cả giải.
  * (3) Cùng một đôi đồng đội (cùng phía) không xuất hiện hai vòng liên tiếp.
  * (4) Không VĐV nào đánh ba vòng liên tiếp trên một phía (Hoài và Huyền riêng).
+ * (5) Mỗi sân: chênh bậc hai đội không quá 1 — |tb chỉ số vị trí trong HOAI / HUYEN của hai đội trong trận| ≤ 1 ⇔ |tổng chỉ số đôi Hoài − tổng đôi Huyền| ≤ 2 (chỉ số = thứ tự trong HOAI/HUYEN).
  *
  * Lưu: Cấm «một VĐV không được đánh hai vòng liên tiếp» thì không tương thích
  * đồng thời với đủ 4 người/phía và mọi người 4 trận trong 7 vòng — xem roster.ts.
  *
  * Sinh: node scripts/generate-schedule.mjs
  */
-const HOAI = ['Thuỷ', 'Gianh', 'Thành', 'Vũ', 'Hoàng Baby', 'Dương', 'Thùy Tini']
+const HOAI = ['Thuỷ', 'Thành', 'HoàngNH', 'Vũ', 'Gianh', 'Thủy Tini', 'Dương']
+/** Cùng thứ tự = bậc 0…6; dùng trong ràng buộc chênh bậc trên mỗi sân. */
 const HUYEN = ['Trung', 'An', 'Tiến', 'Lâm', 'Hùng', 'Diễn', 'Huyền']
 
 const PLAYERS_SIDE = 7
 const NUM_ROUNDS = 7
 const GAMES_PER_PLAYER = 4
 const MAX_PAIR_GAMES = 2
+/** |(Σ bậc Hoài của sàn) − (Σ bậc Huyền của sàn)| tối đa ⇒ chênh trung bình bậc của hai đôi trong trận ≤ 1. */
+const MAX_ABS_TIER_SUM_GAP = 2
 
 /** Cạnh không hướng 0..20 */
 function buildEdges() {
@@ -57,6 +61,30 @@ function buildSucc() {
   return s
 }
 const SUCC = buildSucc()
+
+/** Tổng chỉ số bậc (0..6) trên một cạnh đôi — trùng với tổng index trong HOAI/HUYEN. */
+function edgeSumTierIds(eid) {
+  const [a, b] = EDGES[eid]
+  return a + b
+}
+
+/** Một sân: một cạnh Hoài × một cạnh Huyền — chênh tổng bậc hai đôi ≤ MAX_ABS_TIER_SUM_GAP. */
+function tiersOkForCourt(hEdgeId, yEdgeId) {
+  return (
+    Math.abs(edgeSumTierIds(hEdgeId) - edgeSumTierIds(yEdgeId)) <=
+    MAX_ABS_TIER_SUM_GAP
+  )
+}
+
+/** Cả hai sân trong (hi, yi, sw) đều thỏa ràng buộc bậc. */
+function matchupTierCompatible(hi, yi, sw) {
+  const H = LAYOUTS[hi]
+  const Y = LAYOUTS[yi]
+  if (!sw) {
+    return tiersOkForCourt(H.e1, Y.e1) && tiersOkForCourt(H.e2, Y.e2)
+  }
+  return tiersOkForCourt(H.e1, Y.e2) && tiersOkForCourt(H.e2, Y.e1)
+}
 
 function verticesOfLayout(li) {
   const { e1, e2 } = LAYOUTS[li]
@@ -182,6 +210,7 @@ function randomTrial(seed) {
           continue yiOuter
 
         for (const sw of [0, 1]) {
+          if (!matchupTierCompatible(hi, yi, sw)) continue
           const [m1, m2] = roundMatchKeys(hi, yi, sw)
           if (used.has(m1) || used.has(m2)) continue
           opts.push({ hi, yi, sw, vertsH, vertsY, he1, he2, ye1, ye2, m1, m2 })
@@ -240,7 +269,7 @@ function timeSlots() {
 }
 
 let foundPath = null
-for (let seed = 1; seed < 12_000_000 && !foundPath; seed++) {
+for (let seed = 1; seed < 35_000_000 && !foundPath; seed++) {
   foundPath = randomTrial(seed)
 }
 
@@ -255,6 +284,29 @@ const scheduleRounds = foundPath.map(([hi, yi, sw], ri) => ({
   timeSlot: slots[ri],
   ...courtRound(hi, yi, sw),
 }))
+
+function sumTierCourts(pair, roster) {
+  let s = 0
+  for (const n of pair) {
+    const i = roster.indexOf(n)
+    if (i < 0) throw new Error(`Unknown name: ${n}`)
+    s += i
+  }
+  return s
+}
+
+function verifyMatchupTierBands(rounds) {
+  for (const r of rounds) {
+    for (const ct of [r.courtOne, r.courtTwo]) {
+      const d = Math.abs(
+        sumTierCourts(ct.hoai, HOAI) - sumTierCourts(ct.huyen, HUYEN),
+      )
+      if (d > MAX_ABS_TIER_SUM_GAP) {
+        throw new Error(`Chênh bậc > ${MAX_ABS_TIER_SUM_GAP} ở ${r.id}`)
+      }
+    }
+  }
+}
 
 function verifyNoThreeConsecutiveRounds(rounds) {
   const check = (names, side) => {
@@ -275,5 +327,6 @@ function verifyNoThreeConsecutiveRounds(rounds) {
 }
 
 verifyNoThreeConsecutiveRounds(scheduleRounds)
+verifyMatchupTierBands(scheduleRounds)
 
 console.log(JSON.stringify(scheduleRounds, null, 2))

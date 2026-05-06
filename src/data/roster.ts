@@ -17,7 +17,7 @@ export const tournamentMeta = {
   infoHeading: 'Giải đấu Picker Ball — KSTN K46 25 năm ra trường 2006-2026',
   subtitle: 'Đối kháng thi đấu đôi: Team Hoài vs Team Huyền',
   competitionFormat:
-    'Đối kháng đôi hai team (không phân hạng). Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Mỗi VĐV không đánh ba trận ở ba vòng liên tiếp trên một phía (tối đa hai vòng liền trước khi nghỉ ít nhất một vòng). (Cấm «hai vòng liên tiếp cho mỗi người» vẫn không tương thích đồng thời với đủ 4 người/phía mỗi vòng.)',
+    'Đối kháng đôi hai team. Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Lịch sinh thêm ràng buộc: mỗi sân, chênh trung bình «bậc» (thứ tự trong danh sách Hoài vs Huyền) giữa hai đôi đối đầu không quá 1.',
   /** Cập nhật khi có lịch cụ thể. */
   date: '15h15–17h21, ngày 09/05/2026',
   /** Cập nhật địa điểm khi xác nhận. */
@@ -73,50 +73,92 @@ export const teamRosterTableFrameClass = {
 /**
  * Hai sân song song — 15h15→17h21: 7 lượt × 18′ (15′ thi đấu + 3′ nghỉ).
  * 7 VĐV Team Hoài × 7 Team Huyền; mỗi lượt 4 người mỗi phía trên hai sân; mỗi VĐV 4 trận.
- * Sinh bằng scripts/generate-schedule.mjs (ràng buộc mô tả ở đầu file script và trong tournamentMeta.competitionFormat).
+ * Sinh bằng scripts/generate-schedule.mjs (đầy đủ ràng buộc kỹ thuật ở đầu file; `competitionFormat` chỉ là tóm tắt thể thức).
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
     timeSlot: '15h15–15h33',
-    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Trung', 'Lâm'] },
-    courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Tiến', 'Huyền'] },
+    courtOne: {
+      hoai: ['Thành', 'Thủy Tini'],
+      huyen: ['Trung', 'Huyền'],
+    },
+    courtTwo: {
+      hoai: ['HoàngNH', 'Gianh'],
+      huyen: ['An', 'Lâm'],
+    },
   },
   {
     id: 'r2',
     timeSlot: '15h33–15h51',
-    courtOne: { hoai: ['Thuỷ', 'Vũ'], huyen: ['An', 'Huyền'] },
-    courtTwo: { hoai: ['Hoàng Baby', 'Thùy Tini'], huyen: ['Tiến', 'Lâm'] },
+    courtOne: {
+      hoai: ['Thuỷ', 'Thủy Tini'],
+      huyen: ['Lâm', 'Hùng'],
+    },
+    courtTwo: {
+      hoai: ['Vũ', 'Gianh'],
+      huyen: ['Tiến', 'Diễn'],
+    },
   },
   {
     id: 'r3',
     timeSlot: '15h51–16h09',
-    courtOne: { hoai: ['Thành', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
-    courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['An', 'Hùng'] },
+    courtOne: {
+      hoai: ['Thuỷ', 'Thành'],
+      huyen: ['Trung', 'Tiến'],
+    },
+    courtTwo: {
+      hoai: ['Vũ', 'Dương'],
+      huyen: ['An', 'Huyền'],
+    },
   },
   {
     id: 'r4',
     timeSlot: '16h09–16h27',
-    courtOne: { hoai: ['Thuỷ', 'Thành'], huyen: ['Hùng', 'Huyền'] },
-    courtTwo: { hoai: ['Gianh', 'Dương'], huyen: ['Lâm', 'Diễn'] },
+    courtOne: {
+      hoai: ['Thành', 'Gianh'],
+      huyen: ['Trung', 'Hùng'],
+    },
+    courtTwo: {
+      hoai: ['HoàngNH', 'Dương'],
+      huyen: ['An', 'Diễn'],
+    },
   },
   {
     id: 'r5',
     timeSlot: '16h27–16h45',
-    courtOne: { hoai: ['Thuỷ', 'Thùy Tini'], huyen: ['An', 'Huyền'] },
-    courtTwo: { hoai: ['Vũ', 'Dương'], huyen: ['Trung', 'Tiến'] },
+    courtOne: {
+      hoai: ['Thuỷ', 'Thủy Tini'],
+      huyen: ['Tiến', 'Diễn'],
+    },
+    courtTwo: {
+      hoai: ['HoàngNH', 'Gianh'],
+      huyen: ['Lâm', 'Hùng'],
+    },
   },
   {
     id: 'r6',
     timeSlot: '16h45–17h03',
-    courtOne: { hoai: ['Gianh', 'Hoàng Baby'], huyen: ['Trung', 'Diễn'] },
-    courtTwo: { hoai: ['Vũ', 'Thùy Tini'], huyen: ['Lâm', 'Hùng'] },
+    courtOne: {
+      hoai: ['Thuỷ', 'Dương'],
+      huyen: ['Tiến', 'Huyền'],
+    },
+    courtTwo: {
+      hoai: ['Thành', 'Vũ'],
+      huyen: ['An', 'Lâm'],
+    },
   },
   {
     id: 'r7',
     timeSlot: '17h03–17h21',
-    courtOne: { hoai: ['Gianh', 'Thành'], huyen: ['Tiến', 'Diễn'] },
-    courtTwo: { hoai: ['Hoàng Baby', 'Dương'], huyen: ['An', 'Hùng'] },
+    courtOne: {
+      hoai: ['HoàngNH', 'Thủy Tini'],
+      huyen: ['Trung', 'Diễn'],
+    },
+    courtTwo: {
+      hoai: ['Vũ', 'Dương'],
+      huyen: ['Hùng', 'Huyền'],
+    },
   },
 ]
 
@@ -221,12 +263,12 @@ export const rosterSections: RosterSection[] = [
     label: 'Thành viên',
     rows: [
       { teamHoai: 'Thuỷ', teamHuyen: 'Trung' },
-      { teamHoai: 'Gianh', teamHuyen: 'An' },
-      { teamHoai: 'Thành', teamHuyen: 'Tiến' },
+      { teamHoai: 'Thành', teamHuyen: 'An' },
+      { teamHoai: 'HoàngNH', teamHuyen: 'Tiến' },
       { teamHoai: 'Vũ', teamHuyen: 'Lâm' },
-      { teamHoai: 'Hoàng Baby', teamHuyen: 'Hùng' },
-      { teamHoai: 'Dương', teamHuyen: 'Diễn' },
-      { teamHoai: 'Thùy Tini', teamHuyen: 'Huyền' },
+      { teamHoai: 'Gianh', teamHuyen: 'Hùng' },
+      { teamHoai: 'Thủy Tini', teamHuyen: 'Diễn' },
+      { teamHoai: 'Dương', teamHuyen: 'Huyền' },
     ],
   },
 ]
