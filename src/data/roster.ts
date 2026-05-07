@@ -14,10 +14,10 @@ export type RosterSection = {
 export const tournamentMeta = {
   title: 'Giải đấu Picker Ball — KSTN K46',
   /** Tiêu đề tab + khối thông tin (thay nhãn “Thông tin giải đấu”). */
-  infoHeading: 'Giải đấu Picker Ball — KSTN K46 25 năm ra trường 2006-2026',
+  infoHeading: 'Giải đấu Picker Ball — KSTN K46 20 năm ra trường 2006-2026',
   subtitle: 'Đối kháng thi đấu đôi: Team Hoài vs Team Huyền',
   competitionFormat:
-    'Đối kháng đôi hai team. Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Lịch sinh thêm ràng buộc: mỗi sân, chênh trung bình «bậc» (thứ tự trong danh sách Hoài vs Huyền) giữa hai đôi đối đầu không quá 1.',
+    'Đối kháng đôi hai team. Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Lịch sinh thêm: mỗi sân, tổng «bậc» đôi Hoài phải bằng tổng bậc đôi Team Huyền; sân có Thủy Tini phải gặp đôi có Huyền.',
   /** Cập nhật khi có lịch cụ thể. */
   date: '15h15–17h21, ngày 09/05/2026',
   /** Cập nhật địa điểm khi xác nhận. */
@@ -80,84 +80,84 @@ export const scheduleRounds: ScheduleRound[] = [
     id: 'r1',
     timeSlot: '15h15–15h33',
     courtOne: {
-      hoai: ['Thành', 'Thủy Tini'],
-      huyen: ['Trung', 'Huyền'],
+      hoai: ['Thuỷ', 'Dương'],
+      huyen: ['An', 'Diễn'],
     },
     courtTwo: {
-      hoai: ['HoàngNH', 'Gianh'],
-      huyen: ['An', 'Lâm'],
+      hoai: ['Gianh', 'Thủy Tini'],
+      huyen: ['Lâm', 'Huyền'],
     },
   },
   {
     id: 'r2',
     timeSlot: '15h33–15h51',
     courtOne: {
-      hoai: ['Thuỷ', 'Thủy Tini'],
-      huyen: ['Lâm', 'Hùng'],
+      hoai: ['HoàngNH', 'Dương'],
+      huyen: ['Lâm', 'Diễn'],
     },
     courtTwo: {
-      hoai: ['Vũ', 'Gianh'],
-      huyen: ['Tiến', 'Diễn'],
+      hoai: ['Vũ', 'Thủy Tini'],
+      huyen: ['Tiến', 'Huyền'],
     },
   },
   {
     id: 'r3',
     timeSlot: '15h51–16h09',
     courtOne: {
-      hoai: ['Thuỷ', 'Thành'],
+      hoai: ['Thuỷ', 'HoàngNH'],
       huyen: ['Trung', 'Tiến'],
     },
     courtTwo: {
-      hoai: ['Vũ', 'Dương'],
-      huyen: ['An', 'Huyền'],
+      hoai: ['Thành', 'Gianh'],
+      huyen: ['An', 'Hùng'],
     },
   },
   {
     id: 'r4',
     timeSlot: '16h09–16h27',
     courtOne: {
-      hoai: ['Thành', 'Gianh'],
-      huyen: ['Trung', 'Hùng'],
+      hoai: ['Thành', 'Thủy Tini'],
+      huyen: ['Trung', 'Huyền'],
     },
     courtTwo: {
-      hoai: ['HoàngNH', 'Dương'],
-      huyen: ['An', 'Diễn'],
+      hoai: ['Vũ', 'Gianh'],
+      huyen: ['Lâm', 'Hùng'],
     },
   },
   {
     id: 'r5',
     timeSlot: '16h27–16h45',
     courtOne: {
-      hoai: ['Thuỷ', 'Thủy Tini'],
-      huyen: ['Tiến', 'Diễn'],
+      hoai: ['HoàngNH', 'Vũ'],
+      huyen: ['Tiến', 'Lâm'],
     },
     courtTwo: {
-      hoai: ['HoàngNH', 'Gianh'],
-      huyen: ['Lâm', 'Hùng'],
+      hoai: ['Thủy Tini', 'Dương'],
+      huyen: ['Diễn', 'Huyền'],
     },
   },
   {
     id: 'r6',
     timeSlot: '16h45–17h03',
     courtOne: {
-      hoai: ['Thuỷ', 'Dương'],
-      huyen: ['Tiến', 'Huyền'],
+      hoai: ['Thuỷ', 'Gianh'],
+      huyen: ['Trung', 'Hùng'],
     },
     courtTwo: {
-      hoai: ['Thành', 'Vũ'],
-      huyen: ['An', 'Lâm'],
+      hoai: ['Thành', 'HoàngNH'],
+      huyen: ['An', 'Tiến'],
     },
   },
   {
     id: 'r7',
     timeSlot: '17h03–17h21',
     courtOne: {
-      hoai: ['HoàngNH', 'Thủy Tini'],
-      huyen: ['Trung', 'Diễn'],
+      hoai: ['Thuỷ', 'Thành'],
+      huyen: ['Trung', 'An'],
     },
     courtTwo: {
       hoai: ['Vũ', 'Dương'],
-      huyen: ['Hùng', 'Huyền'],
+      huyen: ['Hùng', 'Diễn'],
     },
   },
 ]
@@ -267,8 +267,8 @@ export const rosterSections: RosterSection[] = [
       { teamHoai: 'HoàngNH', teamHuyen: 'Tiến' },
       { teamHoai: 'Vũ', teamHuyen: 'Lâm' },
       { teamHoai: 'Gianh', teamHuyen: 'Hùng' },
-      { teamHoai: 'Thủy Tini', teamHuyen: 'Diễn' },
-      { teamHoai: 'Dương', teamHuyen: 'Huyền' },
+      { teamHoai: 'Thủy Tini', teamHuyen: 'Huyền' },
+      { teamHoai: 'Dương', teamHuyen: 'Diễn' },
     ],
   },
 ]

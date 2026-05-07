@@ -5,7 +5,9 @@
  * (2) Mỗi đôi đồng đội (hai người một bên) tối đa 2 trận trong cả giải.
  * (3) Cùng một đôi đồng đội (cùng phía) không xuất hiện hai vòng liên tiếp.
  * (4) Không VĐV nào đánh ba vòng liên tiếp trên một phía (Hoài và Huyền riêng).
- * (5) Mỗi sân: chênh bậc hai đội không quá 1 — |tb chỉ số vị trí trong HOAI / HUYEN của hai đội trong trận| ≤ 1 ⇔ |tổng chỉ số đôi Hoài − tổng đôi Huyền| ≤ 2 (chỉ số = thứ tự trong HOAI/HUYEN).
+ * (5) Mỗi sân: tổng chỉ số «bậc» (0…6) của đôi Hoài = tổng đôi Team Huyền (chỉ số = thứ tự trong HOAI/HUYEN).
+ * (6) Trên một sân: nếu có Thủy Tini (Hoài) thì đôi đối đầu phải có Huyền.
+ * (7) Thủy Tini chỉ đánh ở các vòng 1, 2, 4, 5 (không ở vòng 3, 6, 7).
  *
  * Lưu: Cấm «một VĐV không được đánh hai vòng liên tiếp» thì không tương thích
  * đồng thời với đủ 4 người/phía và mọi người 4 trận trong 7 vòng — xem roster.ts.
@@ -13,15 +15,20 @@
  * Sinh: node scripts/generate-schedule.mjs
  */
 const HOAI = ['Thuỷ', 'Thành', 'HoàngNH', 'Vũ', 'Gianh', 'Thủy Tini', 'Dương']
-/** Cùng thứ tự = bậc 0…6; dùng trong ràng buộc chênh bậc trên mỗi sân. */
+/** Cùng thứ tự = bậc 0…6; tổng bậc đôi trên một sàn phải khớp hai phía khi MAX_ABS_TIER_SUM_GAP = 0. */
 const HUYEN = ['Trung', 'An', 'Tiến', 'Lâm', 'Hùng', 'Diễn', 'Huyền']
 
 const PLAYERS_SIDE = 7
 const NUM_ROUNDS = 7
 const GAMES_PER_PLAYER = 4
 const MAX_PAIR_GAMES = 2
-/** |(Σ bậc Hoài của sàn) − (Σ bậc Huyền của sàn)| tối đa ⇒ chênh trung bình bậc của hai đôi trong trận ≤ 1. */
-const MAX_ABS_TIER_SUM_GAP = 2
+/** Tổng bậc đôi Hoài = tổng bậc đôi Team Huyền trên mỗi sân. */
+const MAX_ABS_TIER_SUM_GAP = 0
+
+const THUY_TINI_VERTEX = HOAI.indexOf('Thủy Tini')
+const HUYN_VERTEX = HUYEN.indexOf('Huyền')
+/** Vòng 1-based mà Thủy Tini được phép chơi ⇒ depth 0-indexed. */
+const THUY_TINI_ALLOWED_DEPTHS = new Set([0, 1, 3, 4])
 
 /** Cạnh không hướng 0..20 */
 function buildEdges() {
@@ -68,12 +75,24 @@ function edgeSumTierIds(eid) {
   return a + b
 }
 
-/** Một sân: một cạnh Hoài × một cạnh Huyền — chênh tổng bậc hai đôi ≤ MAX_ABS_TIER_SUM_GAP. */
+function edgeHasVertex(eid, vx) {
+  const [a, b] = EDGES[eid]
+  return a === vx || b === vx
+}
+
+/** Một sân: tổng bậc hai đôi khớp + Thủy Tini (Hoài) ⟺ Huyền ở đôi đối đầu. */
 function tiersOkForCourt(hEdgeId, yEdgeId) {
-  return (
-    Math.abs(edgeSumTierIds(hEdgeId) - edgeSumTierIds(yEdgeId)) <=
+  if (
+    Math.abs(edgeSumTierIds(hEdgeId) - edgeSumTierIds(yEdgeId)) >
     MAX_ABS_TIER_SUM_GAP
   )
+    return false
+  if (
+    edgeHasVertex(hEdgeId, THUY_TINI_VERTEX) &&
+    !edgeHasVertex(yEdgeId, HUYN_VERTEX)
+  )
+    return false
+  return true
 }
 
 /** Cả hai sân trong (hi, yi, sw) đều thỏa ràng buộc bậc. */
@@ -186,6 +205,11 @@ function randomTrial(seed) {
 
     hiOuter: for (const hi of hiList) {
       const vertsH = verticesOfLayout(hi)
+      if (
+        vertsH.includes(THUY_TINI_VERTEX) &&
+        !THUY_TINI_ALLOWED_DEPTHS.has(depth)
+      )
+        continue hiOuter
       for (const v of vertsH) {
         if (hoPlays[v] >= GAMES_PER_PLAYER) continue hiOuter
         if (wouldBeThreeRuns(hoHist[v], depth)) continue hiOuter
@@ -326,7 +350,32 @@ function verifyNoThreeConsecutiveRounds(rounds) {
   check(HUYEN, 'huyen')
 }
 
+function verifyThuyTiniCourtOpponent(rounds) {
+  const tin = 'Thủy Tini'
+  const hu = 'Huyền'
+  for (const r of rounds) {
+    for (const ct of [r.courtOne, r.courtTwo]) {
+      if (ct.hoai.includes(tin) && !ct.huyen.includes(hu)) {
+        throw new Error(`Thủy Tini mà thiếu Huyền đối đầu ở ${r.id}`)
+      }
+    }
+  }
+}
+
+function verifyThuyTiniRoundWindow(rounds) {
+  const tin = 'Thủy Tini'
+  rounds.forEach((r, idx) => {
+    const plays =
+      r.courtOne.hoai.includes(tin) || r.courtTwo.hoai.includes(tin)
+    if (plays && !THUY_TINI_ALLOWED_DEPTHS.has(idx)) {
+      throw new Error(`Thủy Tini không được chơi vòng ${idx + 1}`)
+    }
+  })
+}
+
 verifyNoThreeConsecutiveRounds(scheduleRounds)
 verifyMatchupTierBands(scheduleRounds)
+verifyThuyTiniCourtOpponent(scheduleRounds)
+verifyThuyTiniRoundWindow(scheduleRounds)
 
 console.log(JSON.stringify(scheduleRounds, null, 2))
