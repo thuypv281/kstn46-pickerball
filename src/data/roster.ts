@@ -1,14 +1,11 @@
-export type RosterRow = {
-  teamHoai: string
-  teamHuyen: string
-  /** Shown as secondary text for the pairing (e.g. status note). */
-  note?: string
-}
-
-export type RosterSection = {
-  id: string
-  label: string
-  rows: RosterRow[]
+export type TeamMemberProfile = {
+  code: string
+  /** Tên đầy đủ hiển thị trên bảng đội hình. */
+  fullName: string
+  /** Tên rút gọn trong lịch thi đấu. */
+  shortName: string
+  skillNote: string
+  isCaptain?: boolean
 }
 
 export const teamLabels = {
@@ -235,88 +232,83 @@ export const teamStandings: TeamStandingRow[] = [
   },
 ]
 
-export type TierPairScheduleSlot = {
-  roundNumber: number
-  timeSlot: string
-  courtLabel: string
-}
-
-/** Các lượt trong đó `member` thi đấu đôi cho phía `side` (Sân 1 hoặc 2). */
-export function scheduleSlotsForTeamMember(
-  member: string,
-  side: 'hoai' | 'huyen',
-  rounds: ScheduleRound[] = scheduleRounds
-): TierPairScheduleSlot[] {
-  const out: TierPairScheduleSlot[] = []
-  rounds.forEach((round, idx) => {
-    const roundNumber = idx + 1
-    if (side === 'hoai') {
-      if (round.courtOne.hoai.includes(member))
-        out.push({
-          roundNumber,
-          timeSlot: round.timeSlot,
-          courtLabel: tournamentMeta.courtOneLabel,
-        })
-      else if (round.courtTwo.hoai.includes(member))
-        out.push({
-          roundNumber,
-          timeSlot: round.timeSlot,
-          courtLabel: tournamentMeta.courtTwoLabel,
-        })
-    } else {
-      if (round.courtOne.huyen.includes(member))
-        out.push({
-          roundNumber,
-          timeSlot: round.timeSlot,
-          courtLabel: tournamentMeta.courtOneLabel,
-        })
-      else if (round.courtTwo.huyen.includes(member))
-        out.push({
-          roundNumber,
-          timeSlot: round.timeSlot,
-          courtLabel: tournamentMeta.courtTwoLabel,
-        })
-    }
-  })
-  return out
-}
-
-export type RosterTeamTableRow = {
-  key: string
-  member: string
-  roundSlots: TierPairScheduleSlot[]
-}
-
-/** Các hàng của một đội theo thứ tự hạng trong `sections`. */
-export function buildRosterRowsForTeam(
-  sections: RosterSection[],
-  side: 'hoai' | 'huyen'
-): RosterTeamTableRow[] {
-  const out: RosterTeamTableRow[] = []
-  for (const section of sections) {
-    for (const row of section.rows) {
-      const name = side === 'hoai' ? row.teamHoai : row.teamHuyen
-      out.push({
-        key: `${section.id}-${name}-${side}`,
-        member: name,
-        roundSlots: scheduleSlotsForTeamMember(name, side),
-      })
-    }
-  }
-  return out
-}
-
-export const rosterSections: RosterSection[] = [
+/** Danh sách đội hình — nguồn: Lich_Thi_Dau_Pickleball_ITG.pdf */
+export const teamAMembers: TeamMemberProfile[] = [
   {
-    id: 'thanhvien',
-    label: 'Thành viên',
-    rows: [
-      { teamHoai: 'Hòa', teamHuyen: 'Ngọc', note: 'Phùng Đức Hòa · Đinh Thanh Ngọc — ĐT' },
-      { teamHoai: 'Hoài', teamHuyen: 'Hoàng', note: 'Hồ Thị Hoài · Nguyễn Hữu Hoàng' },
-      { teamHoai: 'Hường', teamHuyen: 'Trí', note: 'Bùi Bích Hường · Phạm Xuân Trí' },
-      { teamHoai: 'Lượng', teamHuyen: 'Dự', note: 'Lê Văn Lượng · Nguyễn Huy Dự' },
-      { teamHoai: 'Phương', teamHuyen: 'Ngọ', note: 'Đào Đức Phương · Lê Duy Ngọ' },
-      { teamHoai: 'Cường', teamHuyen: 'Dũng', note: 'Vũ Văn Cường · Nguyễn Văn Dũng' },
-    ],
+    code: 'A1',
+    shortName: 'Hòa',
+    fullName: 'Phùng Đức Hòa',
+    skillNote: 'Khá nhất · Trình 2.6',
+    isCaptain: true,
+  },
+  {
+    code: 'A2',
+    shortName: 'Hoài',
+    fullName: 'Hồ Thị Hoài',
+    skillNote: 'Khá · chơi nửa năm',
+  },
+  {
+    code: 'A3',
+    shortName: 'Hường',
+    fullName: 'Bùi Bích Hường',
+    skillNote: 'Kinh nghiệm 5 tháng',
+  },
+  {
+    code: 'A4',
+    shortName: 'Lượng',
+    fullName: 'Lê Văn Lượng',
+    skillNote: 'Newbie · 2 tháng',
+  },
+  {
+    code: 'A5',
+    shortName: 'Phương',
+    fullName: 'Đào Đức Phương',
+    skillNote: 'Siêu Newbie · 5 buổi',
+  },
+  {
+    code: 'A6',
+    shortName: 'Cường',
+    fullName: 'Vũ Văn Cường',
+    skillNote: 'Siêu Newbie · 1 trận',
+  },
+]
+
+export const teamBMembers: TeamMemberProfile[] = [
+  {
+    code: 'B1',
+    shortName: 'Ngọc',
+    fullName: 'Đinh Thanh Ngọc',
+    skillNote: 'Nền tennis · tay khỏe',
+    isCaptain: true,
+  },
+  {
+    code: 'B2',
+    shortName: 'Hoàng',
+    fullName: 'Nguyễn Hữu Hoàng',
+    skillNote: 'Khá · thành thạo',
+  },
+  {
+    code: 'B3',
+    shortName: 'Trí',
+    fullName: 'Phạm Xuân Trí',
+    skillNote: 'Nền bóng bàn · phản xạ tốt',
+  },
+  {
+    code: 'B4',
+    shortName: 'Dự',
+    fullName: 'Nguyễn Huy Dự',
+    skillNote: 'Newbie mới làm quen',
+  },
+  {
+    code: 'B5',
+    shortName: 'Ngọ',
+    fullName: 'Lê Duy Ngọ',
+    skillNote: 'Siêu Newbie · 3 buổi',
+  },
+  {
+    code: 'B6',
+    shortName: 'Dũng',
+    fullName: 'Nguyễn Văn Dũng',
+    skillNote: 'Siêu Newbie · 1 trận',
   },
 ]
