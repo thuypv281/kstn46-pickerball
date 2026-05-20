@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { fetchTournamentState, saveTournamentScores, type ScoresMap } from './api/tournament'
 import { ScheduleCourtLine } from './courtLine'
-import { scheduleRounds, type ScheduleCourt } from './data/roster'
+import { scheduleRounds, teamLabels, type ScheduleCourt } from './data/roster'
 
 function emptyScoresMap(): ScoresMap {
   const m: ScoresMap = {}
@@ -111,7 +111,7 @@ function MatchEditModal({
           </div>
           <div>
             <label htmlFor={titleId + '-score'} className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Tỷ số (Hoài trước — Huyền sau)
+              Tỷ số ({teamLabels.hoai} trước — {teamLabels.huyen} sau)
             </label>
             <input
               ref={inputRef}
@@ -119,8 +119,8 @@ function MatchEditModal({
               type="text"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="vd. 15–10"
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 font-mono text-base tabular-nums outline-none ring-red-700/30 focus:ring-2 dark:border-slate-600 dark:bg-slate-950"
+              placeholder="vd. 11–8"
+              className="w-full rounded-xl border border-itg-green-muted/70 bg-white px-3 py-2.5 font-mono text-base tabular-nums outline-none ring-itg-red/30 focus:ring-2 dark:border-stone-600 dark:bg-stone-950"
               autoComplete="off"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -131,7 +131,7 @@ function MatchEditModal({
             />
           </div>
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            Định dạng: <span className="font-mono">15–10</span> — số trước là Team Hoài, số sau là Team Huyền. Để trống và
+            Định dạng: <span className="font-mono">11–8</span> — số trước là {teamLabels.hoai}, số sau là {teamLabels.huyen}. Để trống và
             lưu để xóa tỷ số trận này (chưa có kết quả).
           </p>
         </div>
@@ -147,7 +147,7 @@ function MatchEditModal({
             type="button"
             onClick={() => void handleSave()}
             disabled={isSaving}
-            className="rounded-xl bg-red-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:opacity-60 dark:bg-red-900 dark:hover:bg-red-800"
+            className="rounded-xl bg-itg-red-dark px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-itg-red disabled:opacity-60"
           >
             {isSaving ? 'Đang lưu…' : 'Lưu tỷ số'}
           </button>
@@ -218,10 +218,10 @@ export default function Admin() {
     modal && modalRound ? (scores[modal.roundId]?.[modal.courtKey] ?? '') : ''
 
   return (
-    <div className="min-h-svh bg-gradient-to-br from-slate-200/90 via-slate-100 to-blue-200/65 px-4 py-10 text-stone-800 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 dark:text-stone-200">
+    <div className="min-h-svh bg-gradient-to-br from-itg-red-soft via-white to-itg-green-soft px-4 py-10 text-stone-800">
       <div className="mx-auto max-w-4xl">
         <p className="mb-2 text-sm text-stone-500 dark:text-stone-400">
-          <a href="/" className="font-medium text-red-700 underline decoration-slate-400 dark:text-red-400">
+          <a href="/" className="font-medium text-itg-red-dark underline decoration-itg-red-muted dark:text-itg-red">
             ← Về trang giải đấu
           </a>
         </p>
@@ -240,10 +240,10 @@ export default function Admin() {
           <p className="mt-8 text-stone-500">Đang tải…</p>
         ) : (
           <>
-            <div className="mt-8 overflow-hidden rounded-2xl border border-slate-300/85 bg-white/90 shadow-md dark:border-slate-700/55 dark:bg-slate-900/85">
+            <div className="mt-8 overflow-hidden rounded-2xl border border-itg-green-muted/70 bg-white/90 shadow-md dark:border-stone-700/55 dark:bg-stone-900/85">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="bg-slate-700 text-white dark:bg-blue-900/92">
+                  <tr className="bg-itg-red-dark text-white">
                     <th className="px-3 py-3 font-semibold sm:px-4">Vòng</th>
                     <th className="px-3 py-3 font-semibold sm:px-4">Khung giờ</th>
                     <th className="px-3 py-3 font-semibold sm:px-4">Sân 1</th>
@@ -257,9 +257,9 @@ export default function Admin() {
                     return (
                       <tr
                         key={r.id}
-                        className="border-t border-slate-200 odd:bg-slate-50/90 dark:border-slate-700/50 dark:odd:bg-slate-800/40"
+                        className="border-t border-itg-green-muted/50 odd:bg-itg-green-soft/40 dark:border-stone-700/50 dark:odd:bg-stone-800/40"
                       >
-                        <td className="whitespace-nowrap px-3 py-3 font-medium text-red-700 dark:text-red-400 sm:px-4">
+                        <td className="whitespace-nowrap px-3 py-3 font-medium text-itg-red-dark dark:text-itg-red sm:px-4">
                           {ri + 1}
                         </td>
                         <td className="whitespace-nowrap px-3 py-3 tabular-nums text-stone-700 dark:text-stone-300 sm:px-4">
@@ -292,7 +292,7 @@ export default function Admin() {
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={saving}
-                className="rounded-xl bg-red-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:opacity-60 dark:bg-red-900 dark:hover:bg-red-800"
+                className="rounded-xl bg-itg-red-dark px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-itg-red disabled:opacity-60"
               >
                 {saving ? 'Đang lưu…' : 'Lưu lên server'}
               </button>
@@ -362,7 +362,7 @@ function MatchCell({
         <button
           type="button"
           onClick={onOpen}
-          className="shrink-0 rounded-lg border border-red-700/40 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-800 shadow-sm transition hover:bg-red-100 dark:border-red-500/35 dark:bg-red-950/45 dark:text-red-200 dark:hover:bg-red-950/70"
+          className="shrink-0 rounded-lg border border-itg-red/35 bg-itg-red-soft px-3 py-1.5 text-xs font-semibold text-itg-red-dark shadow-sm transition hover:bg-itg-red-muted/60 dark:border-itg-red/35 dark:bg-itg-red-dark/20 dark:text-itg-red-muted dark:hover:bg-itg-red-dark/35"
         >
           {actionLabel}
         </button>

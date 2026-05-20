@@ -1,5 +1,7 @@
+import { TEAM_A_NAME, TEAM_B_NAME } from './teams.mjs'
+
 /**
- * Parse tỷ số dạng «12–10»: số đầu = Team Hoài, số sau = Team Huyền (chấm 15 hoặc tự do).
+ * Parse tỷ số dạng «11–8»: số đầu = Đội A, số sau = Đội B (chấm đến 11 hoặc tự do).
  * @param {string | undefined} raw
  * @returns {{ hoai: number; huyen: number } | null}
  */
@@ -58,7 +60,7 @@ export function computeStandingsFromRoundScores(rounds) {
 
   const teamHoai = {
     rank: 1,
-    name: 'Team Hoài',
+    name: TEAM_A_NAME,
     played,
     won: hoaiW,
     lost: hoaiL,
@@ -69,7 +71,7 @@ export function computeStandingsFromRoundScores(rounds) {
   }
   const teamHuyen = {
     rank: 2,
-    name: 'Team Huyền',
+    name: TEAM_B_NAME,
     played,
     won: hyW,
     lost: hyL,

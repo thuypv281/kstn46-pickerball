@@ -1,13 +1,27 @@
 @import 'tailwindcss';
 
+/* Chỉ dùng theme sáng (PDF ITG) — bỏ dark mode theo hệ thống. */
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-itg-red: #e8221f;
+  --color-itg-red-dark: #bd1811;
+  --color-itg-red-soft: #fdf0ef;
+  --color-itg-red-muted: #f7c3c0;
+  --color-itg-green: #6dbe48;
+  --color-itg-green-dark: #4e9824;
+  --color-itg-green-soft: #f7faf3;
+  --color-itg-green-muted: #cae6bd;
+}
+
+html {
+  color-scheme: light;
+}
+
 body {
   margin: 0;
   min-height: 100svh;
-  background-color: rgb(241 245 249); /* slate-100 — khớp gradient sáng */
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: rgb(15 23 42); /* slate-900 — khớp nền xanh đậm */
-  }
+  background: linear-gradient(135deg, #fdf0ef 0%, #ffffff 42%, #f7faf3 100%);
+  background-attachment: fixed;
+  color: rgb(41 37 36);
 }

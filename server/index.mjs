@@ -3,12 +3,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { computeStandingsFromRoundScores } from './compute.mjs'
+import { ROUND_IDS } from './teams.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
 const DATA_PATH = path.join(ROOT, 'data', 'tournament-state.json')
-
-const ROUND_IDS = Array.from({ length: 7 }, (_, i) => `r${i + 1}`)
 
 const app = express()
 

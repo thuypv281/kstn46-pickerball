@@ -11,31 +11,55 @@ export type RosterSection = {
   rows: RosterRow[]
 }
 
-export const tournamentMeta = {
-  title: 'Giải đấu Picker Ball — KSTN K46',
-  /** Tiêu đề tab + khối thông tin (thay nhãn “Thông tin giải đấu”). */
-  infoHeading: 'Giải đấu Picker Ball — KSTN K46 20 năm ra trường 2006-2026',
-  subtitle: 'Đối kháng thi đấu đôi: Team Hoài vs Team Huyền',
-  competitionFormat:
-    'Đối kháng đôi hai team. Mỗi VĐV đúng 4 trận trong cả giải. Không lặp cặp đấu (đôi Hoài + đôi Huyền). Mỗi đôi đồng đội cùng phía tối đa 2 trận và không lặp lại hai vòng liền nhau. Lịch sinh thêm: mỗi sân, tổng «bậc» đôi Hoài phải bằng tổng bậc đôi Team Huyền; sân có Thủy Tini phải gặp đôi có Huyền.',
-  /** Cập nhật khi có lịch cụ thể. */
-  date: '15h15–17h21, ngày 09/05/2026',
-  /** Cập nhật địa điểm khi xác nhận. */
-  venue: 'Số 202C Phố Nguyễn Sơn, Long Biên',
-  /** Google Maps (tọa độ sân / điểm hẹn). */
-  venueMapsUrl:
-    'https://www.google.com/maps/search/?api=1&query=21.043428087366056,105.88488985360581',
-  /** Gợi ý luật thời lượng sân (hiển thị dưới header nếu cần). */
-  playCadenceNote: 'Mỗi lượt sân: 15′ thi đấu + 3′ nghỉ; chạm 15.',
-}
-
-/** Mốc thời gian thi đấu (GMT+7) — dùng cho đồng hồ đếm ngược; chỉnh khi đổi lịch. */
-export const tournamentWindow = {
-  startsAt: '2026-05-09T15:15:00+07:00',
-  endsAt: '2026-05-09T17:21:00+07:00',
+export const teamLabels = {
+  hoai: 'Đội A',
+  huyen: 'Đội B',
 } as const
 
-/** Một trận đôi: cặp Team Hoài × cặp Team Huyền. */
+const teamANameKeys = new Set([
+  'đội a',
+  'team hoài',
+  'team hoai',
+  'team a',
+])
+
+const teamBNameKeys = new Set([
+  'đội b',
+  'team huyền',
+  'team huyen',
+  'team b',
+])
+
+/** Nhận diện phía đội từ tên hiển thị (kể cả tên cũ Team Hoài / Team Huyền). */
+export function teamSideFromName(name: string): 'hoai' | 'huyen' | null {
+  const key = name.trim().toLowerCase()
+  if (teamANameKeys.has(key)) return 'hoai'
+  if (teamBNameKeys.has(key)) return 'huyen'
+  return null
+}
+
+export const tournamentMeta = {
+  title: 'ITG Pickerball Tournament',
+  /** Tiêu đề tab + khối thông tin (thay nhãn “Thông tin giải đấu”). */
+  infoHeading: 'ITG Pickerball Tournament',
+  subtitle: 'Đối kháng chéo: Đội A vs Đội B',
+  competitionFormat:
+    'Đối kháng chéo 6 lượt · 2 sân · 12 VĐV (6 vs 6), cân bằng trình độ. Mỗi người đánh đúng 4 séc; đổi bạn cặp liên tục, không trùng cặp cũ. Sân 1 — Tâm Điểm; Sân 2 — Vừa Sức. Thành viên nghỉ chủ động làm trọng tài, bấm giờ và hỗ trợ nhặt bóng cho cả hai sân.',
+  /** Cập nhật khi có lịch cụ thể. */
+  date: '15h30, ngày 23/05/2026',
+  /** Gợi ý luật thời lượng sân (hiển thị dưới header nếu cần). */
+  playCadenceNote: 'Mỗi lượt sân: 15–18′/séc (đến 11 điểm); 2–3′ xoay vòng giữa các lượt.',
+  courtOneLabel: 'Sân 1 — Tâm Điểm',
+  courtTwoLabel: 'Sân 2 — Vừa Sức',
+}
+
+/** Mốc thời gian thi đấu (GMT+7) — dùng cho đồng hồ đếm ngược. */
+export const tournamentWindow = {
+  startsAt: '2026-05-23T15:30:00+07:00',
+  endsAt: '2026-05-23T17:30:00+07:00',
+} as const
+
+/** Một trận đôi: cặp Đội A × cặp Đội B (`hoai` / `huyen` giữ key nội bộ). */
 export type ScheduleCourt = {
   hoai: [string, string]
   huyen: [string, string]
@@ -54,110 +78,109 @@ export type ScheduleRound = {
   scoreCourtTwo?: string
 }
 
-/** Màu chữ tên VĐV — Team Hoài đỏ / Team Huyền lime. */
+/** Màu chữ tên VĐV — Đội A đỏ / Đội B xanh ITG. */
 export const teamMemberNameClass = {
-  hoai: 'font-semibold text-red-700 dark:text-red-400',
-  huyen: 'font-semibold text-lime-900 dark:text-lime-200',
+  hoai: 'font-semibold text-itg-red-dark',
+  huyen: 'font-semibold text-itg-green-dark',
 } as const
 
 export const teamRosterHeadingClass = {
-  hoai: 'font-semibold text-red-700 dark:text-red-400',
-  huyen: 'font-semibold text-lime-900 dark:text-lime-300',
+  hoai: 'font-semibold text-itg-red-dark',
+  huyen: 'font-semibold text-itg-green-dark',
 } as const
 
 export const teamRosterTableFrameClass = {
-  hoai: 'border-red-700/35 dark:border-red-600/35',
-  huyen: 'border-lime-600/38 dark:border-lime-400/35',
+  hoai: 'border-itg-red/30',
+  huyen: 'border-itg-green/35',
 } as const
 
 /**
- * Hai sân song song — 15h15→17h21: 7 lượt × 18′ (15′ thi đấu + 3′ nghỉ).
- * 7 VĐV Team Hoài × 7 Team Huyền; mỗi lượt 4 người mỗi phía trên hai sân; mỗi VĐV 4 trận.
- * Sinh bằng scripts/generate-schedule.mjs (đầy đủ ràng buộc kỹ thuật ở đầu file; `competitionFormat` chỉ là tóm tắt thể thức).
+ * Lịch ITG — 6 lượt × 2 sân (15h30→17h30), mỗi lượt 20′.
+ * Nguồn: Lich_Thi_Dau_Pickleball_ITG.pdf — đối kháng chéo Đội A vs Đội B.
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
-    timeSlot: '15h15–15h33',
+    timeSlot: '15h30–15h50',
     courtOne: {
-      hoai: ['Thuỷ', 'Dương'],
-      huyen: ['An', 'Diễn'],
+      hoai: ['Hường', 'Lượng'],
+      huyen: ['Trí', 'Dự'],
+      note: 'Trung bình khá mở màn',
     },
     courtTwo: {
-      hoai: ['Gianh', 'Thủy Tini'],
-      huyen: ['Lâm', 'Huyền'],
+      hoai: ['Phương', 'Cường'],
+      huyen: ['Ngọ', 'Dũng'],
+      note: 'Kèo siêu Newbie',
     },
   },
   {
     id: 'r2',
-    timeSlot: '15h33–15h51',
+    timeSlot: '15h50–16h10',
     courtOne: {
-      hoai: ['HoàngNH', 'Dương'],
-      huyen: ['Lâm', 'Diễn'],
+      hoai: ['Hòa', 'Cường'],
+      huyen: ['Ngọc', 'Dũng'],
+      note: 'ĐT gánh siêu Newbie',
     },
     courtTwo: {
-      hoai: ['Vũ', 'Thủy Tini'],
-      huyen: ['Tiến', 'Huyền'],
+      hoai: ['Lượng', 'Phương'],
+      huyen: ['Dự', 'Ngọ'],
+      note: 'Newbie đại chiến',
     },
   },
   {
     id: 'r3',
-    timeSlot: '15h51–16h09',
+    timeSlot: '16h10–16h30',
     courtOne: {
-      hoai: ['Thuỷ', 'HoàngNH'],
-      huyen: ['Trung', 'Tiến'],
+      hoai: ['Hoài', 'Hường'],
+      huyen: ['Hoàng', 'Trí'],
+      note: 'Kinh nghiệm so tài',
     },
     courtTwo: {
-      hoai: ['Thành', 'Gianh'],
-      huyen: ['An', 'Hùng'],
+      hoai: ['Hòa', 'Phương'],
+      huyen: ['Ngọc', 'Ngọ'],
+      note: 'ĐT gánh Newbie trận 1',
     },
   },
   {
     id: 'r4',
-    timeSlot: '16h09–16h27',
+    timeSlot: '16h30–16h50',
     courtOne: {
-      hoai: ['Thành', 'Thủy Tini'],
-      huyen: ['Trung', 'Huyền'],
+      hoai: ['Hòa', 'Hường'],
+      huyen: ['Ngọc', 'Trí'],
+      note: 'Nảy lửa trước chung kết',
     },
     courtTwo: {
-      hoai: ['Vũ', 'Gianh'],
-      huyen: ['Lâm', 'Hùng'],
+      hoai: ['Hoài', 'Cường'],
+      huyen: ['Hoàng', 'Dũng'],
+      note: 'Kèo gánh Newbie hiệp 2',
     },
   },
   {
     id: 'r5',
-    timeSlot: '16h27–16h45',
+    timeSlot: '16h50–17h10',
     courtOne: {
-      hoai: ['HoàngNH', 'Vũ'],
-      huyen: ['Tiến', 'Lâm'],
+      hoai: ['Hoài', 'Lượng'],
+      huyen: ['Hoàng', 'Dự'],
+      note: 'Cân bằng mid-game',
     },
     courtTwo: {
-      hoai: ['Thủy Tini', 'Dương'],
-      huyen: ['Diễn', 'Huyền'],
+      hoai: ['Hường', 'Phương'],
+      huyen: ['Trí', 'Ngọ'],
+      note: 'Kinh nghiệm + Newbie',
     },
   },
   {
     id: 'r6',
-    timeSlot: '16h45–17h03',
+    timeSlot: '17h10–17h30',
     courtOne: {
-      hoai: ['Thuỷ', 'Gianh'],
-      huyen: ['Trung', 'Hùng'],
+      hoai: ['Hòa', 'Hoài'],
+      huyen: ['Ngọc', 'Hoàng'],
+      note: 'Trận chung kết đỉnh cao',
     },
     courtTwo: {
-      hoai: ['Thành', 'HoàngNH'],
-      huyen: ['An', 'Tiến'],
-    },
-  },
-  {
-    id: 'r7',
-    timeSlot: '17h03–17h21',
-    courtOne: {
-      hoai: ['Thuỷ', 'Thành'],
-      huyen: ['Trung', 'An'],
-    },
-    courtTwo: {
-      hoai: ['Vũ', 'Dương'],
-      huyen: ['Hùng', 'Diễn'],
+      hoai: ['Lượng', 'Cường'],
+      huyen: ['Dự', 'Dũng'],
+      note: 'Newbie chốt hạ giải',
     },
   },
 ]
@@ -177,10 +200,20 @@ export type TeamStandingRow = {
   pointDiff: number
 }
 
+/** Chuẩn hóa tên đội trên bảng xếp hạng → Đội A / Đội B. */
+export function normalizeTeamStandings(rows: TeamStandingRow[]): TeamStandingRow[] {
+  return rows.map((row) => {
+    const side = teamSideFromName(row.name)
+    if (side === 'hoai') return { ...row, name: teamLabels.hoai }
+    if (side === 'huyen') return { ...row, name: teamLabels.huyen }
+    return row
+  })
+}
+
 export const teamStandings: TeamStandingRow[] = [
   {
     rank: 1,
-    name: 'Team Hoài',
+    name: teamLabels.hoai,
     played: 0,
     won: 0,
     lost: 0,
@@ -191,7 +224,7 @@ export const teamStandings: TeamStandingRow[] = [
   },
   {
     rank: 2,
-    name: 'Team Huyền',
+    name: teamLabels.huyen,
     played: 0,
     won: 0,
     lost: 0,
@@ -219,14 +252,30 @@ export function scheduleSlotsForTeamMember(
     const roundNumber = idx + 1
     if (side === 'hoai') {
       if (round.courtOne.hoai.includes(member))
-        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 1' })
+        out.push({
+          roundNumber,
+          timeSlot: round.timeSlot,
+          courtLabel: tournamentMeta.courtOneLabel,
+        })
       else if (round.courtTwo.hoai.includes(member))
-        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 2' })
+        out.push({
+          roundNumber,
+          timeSlot: round.timeSlot,
+          courtLabel: tournamentMeta.courtTwoLabel,
+        })
     } else {
       if (round.courtOne.huyen.includes(member))
-        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 1' })
+        out.push({
+          roundNumber,
+          timeSlot: round.timeSlot,
+          courtLabel: tournamentMeta.courtOneLabel,
+        })
       else if (round.courtTwo.huyen.includes(member))
-        out.push({ roundNumber, timeSlot: round.timeSlot, courtLabel: 'Sân 2' })
+        out.push({
+          roundNumber,
+          timeSlot: round.timeSlot,
+          courtLabel: tournamentMeta.courtTwoLabel,
+        })
     }
   })
   return out
@@ -262,13 +311,12 @@ export const rosterSections: RosterSection[] = [
     id: 'thanhvien',
     label: 'Thành viên',
     rows: [
-      { teamHoai: 'Thuỷ', teamHuyen: 'Trung' },
-      { teamHoai: 'Thành', teamHuyen: 'An' },
-      { teamHoai: 'HoàngNH', teamHuyen: 'Tiến' },
-      { teamHoai: 'Vũ', teamHuyen: 'Lâm' },
-      { teamHoai: 'Gianh', teamHuyen: 'Hùng' },
-      { teamHoai: 'Thủy Tini', teamHuyen: 'Huyền' },
-      { teamHoai: 'Dương', teamHuyen: 'Diễn' },
+      { teamHoai: 'Hòa', teamHuyen: 'Ngọc', note: 'Phùng Đức Hòa · Đinh Thanh Ngọc — ĐT' },
+      { teamHoai: 'Hoài', teamHuyen: 'Hoàng', note: 'Hồ Thị Hoài · Nguyễn Hữu Hoàng' },
+      { teamHoai: 'Hường', teamHuyen: 'Trí', note: 'Bùi Bích Hường · Phạm Xuân Trí' },
+      { teamHoai: 'Lượng', teamHuyen: 'Dự', note: 'Lê Văn Lượng · Nguyễn Huy Dự' },
+      { teamHoai: 'Phương', teamHuyen: 'Ngọ', note: 'Đào Đức Phương · Lê Duy Ngọ' },
+      { teamHoai: 'Cường', teamHuyen: 'Dũng', note: 'Vũ Văn Cường · Nguyễn Văn Dũng' },
     ],
   },
 ]
