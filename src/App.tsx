@@ -2,22 +2,19 @@ import { useEffect, useId, useMemo, useState } from 'react'
 import { fetchTournamentState, type TournamentApiState } from './api/tournament'
 import { ScheduleCourtLine } from './courtLine'
 import {
-  rosterSections,
-  buildRosterRowsForTeam,
   scheduleRounds,
+  teamAMembers,
+  teamBMembers,
   teamMemberNameClass,
-  teamRosterHeadingClass,
-  teamRosterTableFrameClass,
   normalizeTeamStandings,
   teamSideFromName,
   teamStandings,
   teamLabels,
   tournamentMeta,
   tournamentWindow,
-  type RosterTeamTableRow,
+  type TeamMemberProfile,
   type ScheduleCourt,
   type ScheduleRound,
-  type TierPairScheduleSlot,
   type TeamStandingRow,
 } from './data/roster'
 
@@ -123,89 +120,62 @@ function ScheduleCourtCell({ court, score }: { court: ScheduleCourt; score?: str
   )
 }
 
-function RosterTierScheduleCell({ slots }: { slots: TierPairScheduleSlot[] }) {
-  if (slots.length === 0) {
-    return <span className="text-stone-400 dark:text-stone-600">—</span>
-  }
-  return (
-    <ul className="list-none space-y-1.5 text-left text-[0.8125rem] leading-snug text-stone-600 dark:text-stone-400">
-      {slots.map((s) => (
-        <li key={`${s.roundNumber}-${s.timeSlot}-${s.courtLabel}`}>
-          <span className="font-semibold text-stone-800 dark:text-stone-200">
-            Vòng {s.roundNumber}
-          </span>
-          {' · '}
-          <span className="tabular-nums">{s.timeSlot}</span>
-          {' · '}
-          <span className="text-stone-500 dark:text-stone-500">{s.courtLabel}</span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function TeamRosterTable({
-  title,
-  rows,
-  headingId,
-  headerClass,
+function TeamRosterPanel({
   side,
+  members,
+  headingId,
 }: {
-  title: string
-  rows: RosterTeamTableRow[]
-  headingId: string
-  headerClass: string
   side: 'hoai' | 'huyen'
+  members: TeamMemberProfile[]
+  headingId: string
 }) {
-  const frameClass = teamRosterTableFrameClass[side]
+  const isTeamA = side === 'hoai'
+  const headerClass = isTeamA ? 'bg-itg-red-dark' : 'bg-itg-green-dark'
+  const codeClass = isTeamA ? 'text-itg-red-dark' : 'text-itg-green-dark'
+  const title = isTeamA ? teamLabels.hoai : teamLabels.huyen
 
   return (
-    <div className="space-y-3">
-      <h3
-        id={headingId}
-        className={`text-center text-lg font-semibold tracking-tight sm:text-left sm:text-xl ${teamRosterHeadingClass[side]}`}
-      >
-        {title}
-      </h3>
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
-        <div
-          className={`inline-block min-w-full rounded-2xl border bg-white/95 align-middle shadow-md shadow-itg-green/10 dark:bg-stone-900/92 dark:shadow-black/45 ${frameClass}`}
-        >
-          <table className="min-w-[20rem] w-full border-collapse text-left">
-            <thead>
-              <tr className={headerClass}>
-                <th scope="col" className="px-4 py-3 text-sm font-semibold sm:px-5 sm:py-4">
-                  Thành viên
-                </th>
-                <th scope="col" className="min-w-[12rem] px-4 py-3 text-sm font-semibold sm:min-w-[16rem] sm:px-5 sm:py-4">
-                  Các vòng thi đấu
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr
-                  key={row.key}
-                  className={[
-                    'border-t border-itg-green-muted/60 dark:border-stone-700/55',
-                    index % 2 === 1 ? 'bg-itg-red-soft/45 dark:bg-stone-800/50' : 'bg-transparent',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  <td className="px-4 py-3 sm:px-5 sm:py-4">
-                    <span className={teamMemberNameClass[side]}>{row.member}</span>
-                  </td>
-                  <td className="max-w-[16rem] px-4 py-3 sm:max-w-none sm:px-5 sm:py-4">
-                    <RosterTierScheduleCell slots={row.roundSlots} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <article
+      className={`overflow-hidden rounded-2xl border bg-white/95 shadow-md shadow-itg-green/10 ${
+        isTeamA ? 'border-itg-red/25' : 'border-itg-green/30'
+      }`}
+      aria-labelledby={headingId}
+    >
+      <header className={`${headerClass} px-4 py-3 text-white sm:px-5`}>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h3 id={headingId} className="text-base font-bold uppercase tracking-wide sm:text-lg">
+            {title}
+          </h3>
+          <span className="text-sm font-medium text-white/90">{members.length} thành viên</span>
         </div>
-      </div>
-    </div>
+      </header>
+      <ul className="divide-y divide-itg-green-muted/55">
+        {members.map((member, index) => (
+          <li
+            key={member.code}
+            className={[
+              'px-4 py-3 sm:px-5 sm:py-3.5',
+              index % 2 === 1
+                ? isTeamA
+                  ? 'bg-itg-red-soft/35'
+                  : 'bg-itg-green-soft/80'
+                : 'bg-white',
+            ].join(' ')}
+          >
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+              <p className="min-w-0 text-[0.9375rem] leading-snug">
+                <span className={`mr-2 font-bold tabular-nums ${codeClass}`}>{member.code}</span>
+                <span className={`font-semibold ${teamMemberNameClass[side]}`}>
+                  {member.fullName}
+                  {member.isCaptain ? ' (ĐT)' : ''}
+                </span>
+              </p>
+              <p className="shrink-0 text-sm text-stone-500 sm:text-right">{member.skillNote}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </article>
   )
 }
 
@@ -238,13 +208,6 @@ function TournamentDetailsSection() {
             <dt className="m-0 shrink-0 font-semibold text-stone-800 dark:text-stone-100">Mỗi lượt sân:</dt>
             <dd className="m-0 min-w-0">{playCadenceBody}</dd>
           </div>
-          <div className="flex flex-wrap items-baseline gap-x-2 border-t border-slate-200/80 pt-4 dark:border-slate-600/55">
-            <dt className="m-0 shrink-0 font-semibold text-stone-800 dark:text-stone-100">Lịch từng thành viên:</dt>
-            <dd className="m-0 min-w-0">
-              Bảng dưới mỗi team liệt kê <strong>các vòng</strong> mà người đó <strong>có ra sân</strong> trong lịch lưới (Sân 1 hoặc
-              Sân 2), khớp với tab Lịch thi đấu.
-            </dd>
-          </div>
         </dl>
       </div>
     </section>
@@ -252,8 +215,6 @@ function TournamentDetailsSection() {
 }
 
 function TeamRosterSection() {
-  const hoaiRows = buildRosterRowsForTeam(rosterSections, 'hoai')
-  const huyenRows = buildRosterRowsForTeam(rosterSections, 'huyen')
   const baseId = useId()
 
   return (
@@ -263,25 +224,21 @@ function TeamRosterSection() {
     >
       <h2
         id="heading-roster-teams"
-        className="mb-8 text-center text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl dark:text-stone-50"
+        className="mb-8 text-center text-xl font-semibold tracking-tight text-stone-900 sm:text-2xl"
       >
-        Đội hình hai team
+        Danh sách chia đội — Cân bằng trình độ
       </h2>
 
-      <div className="flex flex-col gap-10">
-        <TeamRosterTable
-          title={teamLabels.hoai}
-          rows={hoaiRows}
-          headingId={`${baseId}-hoai`}
-          headerClass="bg-itg-red-dark text-white"
+      <div className="grid gap-6 sm:grid-cols-2">
+        <TeamRosterPanel
           side="hoai"
+          members={teamAMembers}
+          headingId={`${baseId}-hoai`}
         />
-        <TeamRosterTable
-          title={teamLabels.huyen}
-          rows={huyenRows}
-          headingId={`${baseId}-huyen`}
-          headerClass="bg-itg-green-dark text-white"
+        <TeamRosterPanel
           side="huyen"
+          members={teamBMembers}
+          headingId={`${baseId}-huyen`}
         />
       </div>
     </section>
