@@ -43,7 +43,7 @@ export const tournamentMeta = {
   competitionFormat:
     'Đối kháng chéo 6 lượt · 2 sân · 12 VĐV (6 vs 6), cân bằng trình độ. Mỗi người đánh đúng 4 séc; đổi bạn cặp liên tục, không trùng cặp cũ. Sân 1 — Tâm Điểm; Sân 2 — Vừa Sức. Thành viên nghỉ chủ động làm trọng tài, bấm giờ và hỗ trợ nhặt bóng cho cả hai sân.',
   /** Cập nhật khi có lịch cụ thể. */
-  date: '15h30, ngày 23/05/2026',
+  date: '15h, ngày 22/05/2026',
   /** Gợi ý luật thời lượng sân (hiển thị dưới header nếu cần). */
   playCadenceNote: 'Mỗi lượt sân: 15–18′/séc (đến 11 điểm); 2–3′ xoay vòng giữa các lượt.',
   courtOneLabel: 'Sân 1 — Tâm Điểm',
@@ -52,8 +52,8 @@ export const tournamentMeta = {
 
 /** Mốc thời gian thi đấu (GMT+7) — dùng cho đồng hồ đếm ngược. */
 export const tournamentWindow = {
-  startsAt: '2026-05-23T15:30:00+07:00',
-  endsAt: '2026-05-23T17:30:00+07:00',
+  startsAt: '2026-05-22T15:00:00+07:00',
+  endsAt: '2026-05-22T17:00:00+07:00',
 } as const
 
 /** Một trận đôi: cặp Đội A × cặp Đội B (`hoai` / `huyen` giữ key nội bộ). */
@@ -92,13 +92,13 @@ export const teamRosterTableFrameClass = {
 } as const
 
 /**
- * Lịch ITG — 6 lượt × 2 sân (15h30→17h30), mỗi lượt 20′.
+ * Lịch ITG — 6 lượt × 2 sân (15h00→17h00), mỗi lượt 20′.
  * Nguồn: Lich_Thi_Dau_Pickleball_ITG.pdf — đối kháng chéo Đội A vs Đội B.
  */
 export const scheduleRounds: ScheduleRound[] = [
   {
     id: 'r1',
-    timeSlot: '15h30–15h50',
+    timeSlot: '15h00–15h20',
     courtOne: {
       hoai: ['Hường', 'Lượng'],
       huyen: ['Trí', 'Dự'],
@@ -112,7 +112,7 @@ export const scheduleRounds: ScheduleRound[] = [
   },
   {
     id: 'r2',
-    timeSlot: '15h50–16h10',
+    timeSlot: '15h20–15h40',
     courtOne: {
       hoai: ['Hòa', 'Cường'],
       huyen: ['Ngọc', 'Dũng'],
@@ -126,7 +126,7 @@ export const scheduleRounds: ScheduleRound[] = [
   },
   {
     id: 'r3',
-    timeSlot: '16h10–16h30',
+    timeSlot: '15h40–16h00',
     courtOne: {
       hoai: ['Hoài', 'Hường'],
       huyen: ['Hoàng', 'Trí'],
@@ -140,7 +140,7 @@ export const scheduleRounds: ScheduleRound[] = [
   },
   {
     id: 'r4',
-    timeSlot: '16h30–16h50',
+    timeSlot: '16h00–16h20',
     courtOne: {
       hoai: ['Hòa', 'Hường'],
       huyen: ['Ngọc', 'Trí'],
@@ -154,7 +154,7 @@ export const scheduleRounds: ScheduleRound[] = [
   },
   {
     id: 'r5',
-    timeSlot: '16h50–17h10',
+    timeSlot: '16h20–16h40',
     courtOne: {
       hoai: ['Hoài', 'Lượng'],
       huyen: ['Hoàng', 'Dự'],
@@ -168,7 +168,7 @@ export const scheduleRounds: ScheduleRound[] = [
   },
   {
     id: 'r6',
-    timeSlot: '17h10–17h30',
+    timeSlot: '16h40–17h00',
     courtOne: {
       hoai: ['Hòa', 'Hoài'],
       huyen: ['Ngọc', 'Hoàng'],
