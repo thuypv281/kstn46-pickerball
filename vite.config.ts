@@ -5,6 +5,10 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  /** Không dùng VITE_API_BASE_URL — API luôn cùng origin (`/api/state`). */
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(''),
+  },
   server: {
     proxy: {
       '/api': {
