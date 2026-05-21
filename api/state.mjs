@@ -12,6 +12,20 @@ function setCors(req, res) {
   if (origin) res.setHeader('Vary', 'Origin')
 }
 
+function setNoCache(res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+}
+
+function blobCommandOptions() {
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+  const storeId = process.env.BLOB_STORE_ID?.trim()
+  const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim()
+  if (oidcToken && storeId) return { oidcToken, storeId }
+  if (token) return { token }
+  return {}
+}
+
 function parseBody(req) {
   const body = req.body
   if (!body) return null
@@ -33,10 +47,10 @@ function isStorageConfigError(e) {
 /** @returns {Promise<Record<string, unknown>>} */
 async function readScores() {
   try {
-    const { blobs } = await list({ prefix: PATHNAME })
+    const { blobs } = await list({ prefix: PATHNAME, ...blobCommandOptions() })
     const blob = blobs.find((b) => b.pathname === PATHNAME)
     if (!blob) return {}
-    const r = await fetch(blob.url)
+    const r = await fetch(blob.url, { cache: 'no-store' })
     if (!r.ok) return {}
     const j = await r.json()
     if (j && typeof j.scores === 'object' && j.scores !== null) return j.scores
@@ -49,17 +63,29 @@ async function readScores() {
 
 /** @param {Record<string, unknown>} scores */
 async function writeScores(scores) {
-  await put(PATHNAME, JSON.stringify({ scores }, null, 2), {
-    access: 'public',
+  const body = JSON.stringify({ scores }, null, 2)
+  const opts = {
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json',
-  })
+    ...blobCommandOptions(),
+  }
+  try {
+    await put(PATHNAME, body, { ...opts, access: 'public' })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e ?? '')
+    if (/access|private|public/i.test(msg)) {
+      await put(PATHNAME, body, { ...opts, access: 'private' })
+      return
+    }
+    throw e
+  }
 }
 
 /** Vercel Serverless — GET/PUT /api/state (cùng domain với frontend). */
 export default async function handler(req, res) {
   setCors(req, res)
+  setNoCache(res)
   if (req.method === 'OPTIONS') {
     res.status(204).end()
     return

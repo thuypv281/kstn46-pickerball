@@ -23,7 +23,7 @@ export function stateEndpoint(): string {
 
 export async function fetchTournamentState(): Promise<TournamentApiState | null> {
   try {
-    const r = await fetch(stateEndpoint())
+    const r = await fetch(stateEndpoint(), { cache: 'no-store' })
     if (!r.ok) return null
     return (await r.json()) as TournamentApiState
   } catch {
@@ -39,6 +39,7 @@ export async function saveTournamentScores(scores: ScoresMap): Promise<SaveScore
   try {
     const r = await fetch(stateEndpoint(), {
       method: 'PUT',
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scores }),
     })
