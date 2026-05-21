@@ -13,8 +13,11 @@ export type TournamentApiState = {
   saved?: boolean
 }
 
-/** Luôn cùng origin — tránh CORS khi `VITE_API_BASE_URL` trỏ nhầm host khác. */
-function stateEndpoint() {
+/** Luôn gọi API trên cùng domain với trang web — không dùng Railway / VITE_API_BASE_URL. */
+export function stateEndpoint(): string {
+  if (typeof window !== 'undefined') {
+    return new URL('/api/state', window.location.origin).href
+  }
   return '/api/state'
 }
 

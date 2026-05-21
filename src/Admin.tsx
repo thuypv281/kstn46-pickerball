@@ -235,11 +235,10 @@ export default function Admin() {
         </p>
         <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Admin — nhập tỷ số</h1>
         <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-          Chọn <strong>Nhập tỷ số</strong> / <strong>Sửa tỷ số</strong> — <strong>Lưu tỷ số</strong> trong popup sẽ <strong>gửi lên server</strong>{' '}
-          Trên <strong>https://itg-pickerball.vercel.app</strong> tỷ số lưu qua{' '}
-          <code className="text-stone-800 dark:text-stone-200">/api/state</code> (Vercel Blob). Dev local dùng API{' '}
-          <code className="text-stone-800 dark:text-stone-200">127.0.0.1:5050</code> qua proxy Vite. Nút{' '}
-          <strong>Lưu lên server</strong> bên dưới lưu toàn bộ bảng một lần.
+          Chọn <strong>Nhập tỷ số</strong> / <strong>Sửa tỷ số</strong> — <strong>Lưu tỷ số</strong> trong popup sẽ{' '}
+          <strong>gửi lên server</strong> qua <code className="text-stone-800 dark:text-stone-200">/api/state</code> (cùng domain). Dev
+          local: <code className="text-stone-800 dark:text-stone-200">npm run dev</code>. Nút <strong>Lưu lên server</strong> bên dưới lưu
+          toàn bộ bảng một lần.
         </p>
         {message ? (
           <p className="mt-4 rounded-lg border border-slate-300/80 bg-white/80 px-4 py-3 text-sm dark:border-slate-600 dark:bg-slate-900/70">
