@@ -1,4 +1,4 @@
-import { list, put } from '@vercel/blob'
+import { get, put } from '@vercel/blob'
 import { buildStatePayload } from '../server/state-core.mjs'
 
 const PATHNAME = 'tournament-state.json'
@@ -44,15 +44,42 @@ function isStorageConfigError(e) {
   return /no blob credentials|BLOB_READ_WRITE_TOKEN|BLOB_STORE_ID|blob_not_configured/i.test(msg)
 }
 
+async function readStreamText(stream) {
+  if (!stream) return ''
+  if (typeof stream.getReader === 'function') {
+    return await new Response(stream).text()
+  }
+  const chunks = []
+  for await (const chunk of stream) {
+    chunks.push(typeof chunk === 'string' ? chunk : Buffer.from(chunk))
+  }
+  return Buffer.concat(chunks).toString('utf8')
+}
+
+/** @returns {Promise<{ scores?: Record<string, unknown> } | null>} */
+async function readStoredJson() {
+  const base = { ...blobCommandOptions(), useCache: false }
+  for (const access of ['private', 'public']) {
+    try {
+      const result = await get(PATHNAME, { ...base, access })
+      if (!result?.stream) continue
+      const text = await readStreamText(result.stream)
+      if (!text.trim()) continue
+      return JSON.parse(text)
+    } catch (e) {
+      if (e?.name === 'BlobNotFoundError') continue
+      const msg = e instanceof Error ? e.message : String(e ?? '')
+      if (/404|not found/i.test(msg)) continue
+      throw e
+    }
+  }
+  return null
+}
+
 /** @returns {Promise<Record<string, unknown>>} */
 async function readScores() {
   try {
-    const { blobs } = await list({ prefix: PATHNAME, ...blobCommandOptions() })
-    const blob = blobs.find((b) => b.pathname === PATHNAME)
-    if (!blob) return {}
-    const r = await fetch(blob.url, { cache: 'no-store' })
-    if (!r.ok) return {}
-    const j = await r.json()
+    const j = await readStoredJson()
     if (j && typeof j.scores === 'object' && j.scores !== null) return j.scores
     return {}
   } catch (e) {
@@ -70,16 +97,16 @@ async function writeScores(scores) {
     contentType: 'application/json',
     ...blobCommandOptions(),
   }
-  try {
-    await put(PATHNAME, body, { ...opts, access: 'public' })
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e ?? '')
-    if (/access|private|public/i.test(msg)) {
-      await put(PATHNAME, body, { ...opts, access: 'private' })
+  let lastErr
+  for (const access of ['private', 'public']) {
+    try {
+      await put(PATHNAME, body, { ...opts, access })
       return
+    } catch (e) {
+      lastErr = e
     }
-    throw e
   }
+  throw lastErr ?? new Error('blob_write_failed')
 }
 
 /** Vercel Serverless — GET/PUT /api/state (cùng domain với frontend). */
@@ -105,7 +132,8 @@ export default async function handler(req, res) {
         return
       }
       await writeScores(body.scores)
-      res.status(200).json({ ...buildStatePayload(body.scores), saved: true })
+      const scores = await readScores()
+      res.status(200).json({ ...buildStatePayload(scores), saved: true })
       return
     }
 
