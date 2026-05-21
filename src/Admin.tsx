@@ -205,7 +205,9 @@ export default function Admin() {
     if (out?.saved) {
       setMessage('Đã lưu lên server. Trang chủ sẽ hiển thị tỷ số & BXH sau vài giây.')
     } else {
-      setMessage('Không lưu được — kiểm tra API và biến VITE_API_BASE_URL trên Vercel (rồi redeploy).')
+      setMessage(
+        'Không lưu được. Trên Vercel: bật Storage → Blob cho project itg-pickerball, redeploy, và không cần VITE_API_BASE_URL (để trống). Dev local: chạy npm run dev.',
+      )
     }
   }, [])
 
@@ -228,7 +230,9 @@ export default function Admin() {
         <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-50">Admin — nhập tỷ số</h1>
         <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
           Chọn <strong>Nhập tỷ số</strong> / <strong>Sửa tỷ số</strong> — <strong>Lưu tỷ số</strong> trong popup sẽ <strong>gửi lên server</strong>{' '}
-          (cùng địa chỉ API với <code className="text-stone-800 dark:text-stone-200">VITE_API_BASE_URL</code>). Nút{' '}
+          Trên <strong>https://itg-pickerball.vercel.app</strong> tỷ số lưu qua{' '}
+          <code className="text-stone-800 dark:text-stone-200">/api/state</code> (Vercel Blob). Dev local dùng API{' '}
+          <code className="text-stone-800 dark:text-stone-200">127.0.0.1:5050</code> qua proxy Vite. Nút{' '}
           <strong>Lưu lên server</strong> bên dưới lưu toàn bộ bảng một lần.
         </p>
         {message ? (

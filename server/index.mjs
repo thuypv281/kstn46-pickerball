@@ -2,8 +2,7 @@ import express from 'express'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { computeStandingsFromRoundScores } from './compute.mjs'
-import { ROUND_IDS } from './teams.mjs'
+import { standingsFromScores } from './state-core.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..')
@@ -46,15 +45,8 @@ async function writeState(state) {
   await fs.writeFile(DATA_PATH, JSON.stringify(state, null, 2), 'utf8')
 }
 
-function standingsFromScores(scoresMap) {
-  const roundsForCompute = ROUND_IDS.map((id) => {
-    const s = scoresMap[id] || {}
-    return {
-      scoreCourtOne: s.courtOne,
-      scoreCourtTwo: s.courtTwo,
-    }
-  })
-  return computeStandingsFromRoundScores(roundsForCompute)
+function standingsFromScoresMap(scoresMap) {
+  return standingsFromScores(scoresMap)
 }
 
 app.get('/api/health', (_req, res) => {
@@ -65,7 +57,7 @@ app.get('/api/state', async (_req, res) => {
   try {
     const state = await readState()
     const scores = state.scores || {}
-    const standings = standingsFromScores(scores)
+    const standings = standingsFromScoresMap(scores)
     res.json({ scores, standings })
   } catch (e) {
     console.error(e)
@@ -82,7 +74,7 @@ app.put('/api/state', async (req, res) => {
     }
     const state = { scores: body.scores }
     await writeState(state)
-    const standings = standingsFromScores(state.scores)
+    const standings = standingsFromScoresMap(state.scores)
     res.json({ scores: state.scores, standings, saved: true })
   } catch (e) {
     console.error(e)

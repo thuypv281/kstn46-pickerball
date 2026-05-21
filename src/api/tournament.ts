@@ -36,7 +36,11 @@ export async function saveTournamentScores(scores: ScoresMap): Promise<Tournamen
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scores }),
     })
-    if (!r.ok) return null
+    if (!r.ok) {
+      const err = (await r.json().catch(() => null)) as { hint?: string } | null
+      if (err?.hint) console.warn('[save scores]', err.hint)
+      return null
+    }
     return (await r.json()) as TournamentApiState
   } catch {
     return null
