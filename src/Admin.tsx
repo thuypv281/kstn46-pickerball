@@ -210,7 +210,7 @@ export default function Admin() {
       )
     } else if (out.ok === false) {
       setMessage(
-        'Không lưu được. Production: Blob đã Connect + Redeploy, để trống VITE_API_BASE_URL. Dev local: chạy npm run dev (API port 5050).',
+        'Không lưu được. Kiểm tra Blob đã Connect + Redeploy. Dev local: chạy npm run dev (API port 5050).',
       )
     } else {
       setMessage('Không lưu được — phản hồi server không hợp lệ.')

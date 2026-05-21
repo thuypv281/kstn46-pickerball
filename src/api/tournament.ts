@@ -13,10 +13,9 @@ export type TournamentApiState = {
   saved?: boolean
 }
 
-/** Cùng origin hoặc `VITE_API_BASE_URL` khi API nằm host khác (vd. Vercel + Render). */
+/** Luôn cùng origin — tránh CORS khi `VITE_API_BASE_URL` trỏ nhầm host khác. */
 function stateEndpoint() {
-  const base = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
-  return base ? `${base}/api/state` : '/api/state'
+  return '/api/state'
 }
 
 export async function fetchTournamentState(): Promise<TournamentApiState | null> {

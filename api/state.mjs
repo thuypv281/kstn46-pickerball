@@ -3,10 +3,13 @@ import { buildStatePayload } from '../server/state-core.mjs'
 
 const PATHNAME = 'tournament-state.json'
 
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*')
+function setCors(req, res) {
+  const origin = typeof req.headers.origin === 'string' ? req.headers.origin : ''
+  const allow = process.env.CORS_ORIGIN || origin || '*'
+  res.setHeader('Access-Control-Allow-Origin', allow)
   res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  if (origin) res.setHeader('Vary', 'Origin')
 }
 
 function parseBody(req) {
@@ -56,7 +59,7 @@ async function writeScores(scores) {
 
 /** Vercel Serverless — GET/PUT /api/state (cùng domain với frontend). */
 export default async function handler(req, res) {
-  setCors(res)
+  setCors(req, res)
   if (req.method === 'OPTIONS') {
     res.status(204).end()
     return
