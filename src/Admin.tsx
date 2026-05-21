@@ -202,12 +202,18 @@ export default function Admin() {
     const trimmed = buildTrimmedPayload(map)
     const out = await saveTournamentScores(trimmed)
     setSaving(false)
-    if (out?.saved) {
+    if (out.ok && out.data.saved) {
       setMessage('Đã lưu lên server. Trang chủ sẽ hiển thị tỷ số & BXH sau vài giây.')
-    } else {
+    } else if (out.ok === false && out.error === 'storage_not_configured') {
       setMessage(
-        'Không lưu được. Trên Vercel: bật Storage → Blob cho project itg-pickerball, redeploy, và không cần VITE_API_BASE_URL (để trống). Dev local: chạy npm run dev.',
+        `Không lưu được — Blob chưa gắn đúng project. ${out.hint ?? 'Vercel → Storage → Blob → Connect to project itg-pickerball → Redeploy.'}`,
       )
+    } else if (out.ok === false) {
+      setMessage(
+        'Không lưu được. Production: Blob đã Connect + Redeploy, để trống VITE_API_BASE_URL. Dev local: chạy npm run dev (API port 5050).',
+      )
+    } else {
+      setMessage('Không lưu được — phản hồi server không hợp lệ.')
     }
   }, [])
 

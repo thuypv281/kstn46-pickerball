@@ -9,12 +9,28 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 }
 
-async function readScores() {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  if (!token) return null
+function parseBody(req) {
+  const body = req.body
+  if (!body) return null
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body)
+    } catch {
+      return null
+    }
+  }
+  return body
+}
 
+function isStorageConfigError(e) {
+  const msg = e instanceof Error ? e.message : String(e ?? '')
+  return /no blob credentials|BLOB_READ_WRITE_TOKEN|BLOB_STORE_ID|blob_not_configured/i.test(msg)
+}
+
+/** @returns {Promise<Record<string, unknown>>} */
+async function readScores() {
   try {
-    const { blobs } = await list({ prefix: PATHNAME, token })
+    const { blobs } = await list({ prefix: PATHNAME })
     const blob = blobs.find((b) => b.pathname === PATHNAME)
     if (!blob) return {}
     const r = await fetch(blob.url)
@@ -30,15 +46,8 @@ async function readScores() {
 
 /** @param {Record<string, unknown>} scores */
 async function writeScores(scores) {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  if (!token) {
-    const err = new Error('blob_not_configured')
-    err.code = 'blob_not_configured'
-    throw err
-  }
   await put(PATHNAME, JSON.stringify({ scores }, null, 2), {
     access: 'public',
-    token,
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json',
@@ -55,13 +64,13 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const scores = (await readScores()) ?? {}
+      const scores = await readScores()
       res.status(200).json(buildStatePayload(scores))
       return
     }
 
     if (req.method === 'PUT') {
-      const body = req.body
+      const body = parseBody(req)
       if (!body || typeof body.scores !== 'object' || body.scores === null) {
         res.status(400).json({ error: 'invalid_body' })
         return
@@ -73,10 +82,10 @@ export default async function handler(req, res) {
 
     res.status(405).json({ error: 'method_not_allowed' })
   } catch (e) {
-    if (e?.code === 'blob_not_configured' || e?.message === 'blob_not_configured') {
+    if (isStorageConfigError(e)) {
       res.status(503).json({
         error: 'storage_not_configured',
-        hint: 'Vercel → Storage → Blob → Connect to project, rồi Redeploy.',
+        hint: 'Vercel → Storage → Blob → Connect to project itg-pickerball → Redeploy.',
       })
       return
     }

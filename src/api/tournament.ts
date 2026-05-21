@@ -29,7 +29,11 @@ export async function fetchTournamentState(): Promise<TournamentApiState | null>
   }
 }
 
-export async function saveTournamentScores(scores: ScoresMap): Promise<TournamentApiState | null> {
+export type SaveScoresResult =
+  | { ok: true; data: TournamentApiState }
+  | { ok: false; error?: string; hint?: string }
+
+export async function saveTournamentScores(scores: ScoresMap): Promise<SaveScoresResult> {
   try {
     const r = await fetch(stateEndpoint(), {
       method: 'PUT',
@@ -37,12 +41,12 @@ export async function saveTournamentScores(scores: ScoresMap): Promise<Tournamen
       body: JSON.stringify({ scores }),
     })
     if (!r.ok) {
-      const err = (await r.json().catch(() => null)) as { hint?: string } | null
-      if (err?.hint) console.warn('[save scores]', err.hint)
-      return null
+      const err = (await r.json().catch(() => null)) as { error?: string; hint?: string } | null
+      return { ok: false, error: err?.error, hint: err?.hint }
     }
-    return (await r.json()) as TournamentApiState
+    const data = (await r.json()) as TournamentApiState
+    return { ok: true, data }
   } catch {
-    return null
+    return { ok: false }
   }
 }
